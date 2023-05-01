@@ -32,19 +32,13 @@ D_TSIG = {
 }
 
 
-def get_api_creds():
+def init_spotify():
     with open(".credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
-    spotify_client_id = credentials["spotify"]["client_id"]
-    spotify_client_secret = credentials["spotify"]["client_secret"]
-    return spotify_client_id, spotify_client_secret
-
-
-def init_spotify(id, secret):
     spotify = spotipy.Spotify(
         client_credentials_manager=SpotifyClientCredentials(
-            client_id=id,
-            client_secret=secret,
+            client_id=credentials["spotify"]["client_id"],
+            client_secret=credentials["spotify"]["client_secret"],
         )
     )
     return spotify
@@ -63,9 +57,15 @@ def get_playlist_data(spotify, playlist_link):
             print("https://open.spotify.com/playlist/abcd1234\n")
 
     track_urls = []
-    for j in playlist["tracks"]["items"]:
-        track_link = j["track"]["external_urls"]["spotify"]
-        track_urls.append(track_link)
+    offset = 0
+    while True:
+        tracks = spotify.playlist_tracks(playlist_link, offset=offset)
+        if not tracks['items']:
+            break
+        for item in tracks['items']:
+            track_link = item['track']['external_urls']['spotify']
+            track_urls.append(track_link)
+        offset += len(tracks['items'])
 
     track_dict_list = []
     for enum, track_id in enumerate(track_urls, 1):
@@ -129,7 +129,7 @@ def dump_info(track_info, out_file):
 
 def main():
     playlist_link = input("Enter a link to a Spotify playlist:\n")
-    spotify = init_spotify(get_api_creds())
+    spotify = init_spotify()
     track_info = get_playlist_data(spotify, playlist_link)
     dump_info(track_info, "track_info.json")
 

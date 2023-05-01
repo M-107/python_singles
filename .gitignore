@@ -1,3 +1,6 @@
 .venv/
 .credentials.yaml
 .cache
+*.json
+*.csv
+.flake8

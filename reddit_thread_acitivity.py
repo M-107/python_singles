@@ -4,30 +4,21 @@ import praw
 import xlsxwriter
 
 
-def get_api_creds():
+def init_reddit():
     with open(".credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
-    reddit_client_id = credentials["reddit"]["client_id"]
-    reddit_client_secret = credentials["reddit"]["client_secret"]
-    reddit_password = credentials["reddit"]["password"]
-    reddit_user_agent = credentials["reddit"]["user_agent"]
-    reddit_username = credentials["reddit"]["username"]
-    return reddit_client_id, reddit_client_secret, reddit_password, reddit_user_agent, reddit_username
-
-
-def init_reddit(id, secret, password, user_agent, username):
     reddit = praw.Reddit(
-        client_id=id,
-        client_secret=secret,
-        password=password,
-        user_agent=user_agent,
-        username=username,
+        client_id=credentials["reddit"]["client_id"],
+        client_secret=credentials["reddit"]["client_secret"],
+        password=credentials["reddit"]["password"],
+        user_agent=credentials["reddit"]["user_agent"],
+        username=credentials["reddit"]["username"],
     )
     return reddit
 
 
 def get_reddit_info(post_id, date_keep):
-    reddit = init_reddit(get_api_creds())
+    reddit = init_reddit()
     submission = reddit.submission(id=post_id)
     comment_times = []
     submission.comments.replace_more(limit=None)
