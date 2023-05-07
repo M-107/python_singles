@@ -10,10 +10,12 @@ FORMATS = {
     "xrdml" : get_xy_xrdml,
 }
 
+print("Select the files with RTG data\n")
+
 root = tk.Tk()
 root.withdraw()
 files = askopenfilenames(
-    title="Select the files with RTG data.",
+    title="Select the files with RTG data",
     filetypes=[("RTG data files", ".asc .itx .ras .scn .xrdml")],
 )
 
@@ -21,7 +23,11 @@ for file in files:
     print(f"Working on file: {file}")
     new_file = ".".join(file.split(".")[:-1]) + ".txt"
     filetype = file.split(".")[-1].lower()
-    x_list, y_list = FORMATS[filetype](file)
+    try:
+        x_list, y_list = FORMATS[filetype](file)
+    except ValueError:
+        print(" Couldn't read file. Skipping to next one.")
+        continue
     x_math_list = []
     for x in x_list:
         formatted = "{:.14E}".format(x)
@@ -37,3 +43,6 @@ for file in files:
             x, y = pair
             line = f"{x}  {y}\n"
             f.write(line)
+
+print("\nDone\nPress any key to exit")
+input()

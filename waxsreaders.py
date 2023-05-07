@@ -66,7 +66,7 @@ def get_xy_xrdml(path: str):
             y_line = lines[num]
             intensities_string = y_line.split('<intensities unit="counts">')[1].split("</intensities>")[0]
             y = [int(x) for x in intensities_string.split()]
-    x = [x_start + i * (x_end - x_start) / (len(y) - 1) for i in range(len(y))]
+    x = [float(x_start + i * (x_end - x_start) / (len(y) - 1)) for i in range(len(y))]
     return x, y
 
 
@@ -85,6 +85,6 @@ def get_xy_ras(path: str):
     y = []
     for data_line in data_lines:
         split_line = data_line.split(" ")
-        x.append(split_line[0])
-        y.append(split_line[1])
+        x.append(float(split_line[0]))
+        y.append(float(split_line[1]))
     return x, y
