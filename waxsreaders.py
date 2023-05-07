@@ -68,3 +68,23 @@ def get_xy_xrdml(path: str):
             y = [int(x) for x in intensities_string.split()]
     x = [x_start + i * (x_end - x_start) / (len(y) - 1) for i in range(len(y))]
     return x, y
+
+
+def get_xy_ras(path: str):
+    lines = []
+    with open(path, "r", encoding="SHIFT_JIS") as f:
+        for line in f:
+            lines.append(line)
+    for num, line in enumerate(lines):
+        if "*RAS_INT_START" in line:
+            data_start = num + 1
+        if "*RAS_INT_END" in line:
+            data_end = num
+    data_lines = lines[data_start:data_end]
+    x = []
+    y = []
+    for data_line in data_lines:
+        split_line = data_line.split(" ")
+        x.append(split_line[0])
+        y.append(split_line[1])
+    return x, y
