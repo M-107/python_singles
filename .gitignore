@@ -1,4 +1,4 @@
-.venv/
+venv/
 .credentials.yaml
 .cache
 *.json
