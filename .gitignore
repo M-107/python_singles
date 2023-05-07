@@ -1,7 +1,10 @@
 venv/
 __pycache__/
+build/
+dist/
 .credentials.yaml
 .cache
+.flake8
 *.json
 *.csv
-.flake8
+*.spec
