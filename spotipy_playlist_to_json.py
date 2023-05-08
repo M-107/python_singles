@@ -78,7 +78,7 @@ def get_playlist_data(spotify, playlist_link):
         track_album_art = track_info["album"]["images"][0]["url"]
         album_genres = spotify.album(track_info["album"]["id"])["genres"]
         artists_genres = [genre for artist_genres in [spotify.artist(artist_id)["genres"] for artist_id in [artist["id"] for artist in track_info["artists"]]] if artist_genres for genre in artist_genres]
-        track_genres = album_genres if album_genres else artists_genres if artists_genres else []
+        track_genres = album_genres if album_genres else list(set(artists_genres)) if artists_genres else []
 
         audio_features = spotify.audio_features(track_id)
         track = audio_features[0]
