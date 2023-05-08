@@ -123,19 +123,20 @@ def get_playlist_data(spotify, playlist_link):
             "timesig": timesig,
         }
         track_dict_list.append(dict_transformed)
-    return track_dict_list
+    return track_dict_list, playlist_name
 
 
 def dump_info(track_info, out_file):
     with open(out_file, "w") as f:
         json.dump(track_info, f, indent=3)
+    print(f"\nDone\nTrack info saved to {out_file}")
 
 
 def main():
     playlist_link = input("Enter a link to a Spotify playlist:\n")
     spotify = init_spotify()
-    track_info = get_playlist_data(spotify, playlist_link)
-    dump_info(track_info, "track_info.json")
+    track_info, playlist_name = get_playlist_data(spotify, playlist_link)
+    dump_info(track_info, f"track_info_{playlist_name}.json")
 
 
 if __name__ == "__main__":
