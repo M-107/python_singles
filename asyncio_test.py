@@ -21,29 +21,28 @@ class FolderClass():
     def path_absolute(self):
         return Path(self.workdir / self.path)
 
-    def download(self, dry_run=True):
-        file_name = "video.mp4"
-        file_path = Path(self.path_absolute / file_name)
-        if not dry_run:
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            response = requests.get(self.link, stream=True)
+    def download_prep(self):
+        file_path = Path(self.path_absolute) / "video.mp4"
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        return file_path
+
+    def download(self):
+        file_path = self.download_prep()
+        response = requests.get(self.link, stream=True)
+        response.raise_for_status()
+        with open(file_path, "wb") as file:
+            file.write(response.content)
+
+    async def download_async(self, session):
+        file_path = self.download_prep()
+        async with session.get(self.link) as response:
             response.raise_for_status()
             with open(file_path, "wb") as file:
-                file.write(response.content)
-
-    async def download_async(self, session, dry_run=True):
-        file_name = "video.mp4"
-        file_path = Path(self.path_absolute / file_name)
-        if not dry_run:
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            async with session.get(self.link) as response:
-                response.raise_for_status()
-                with open(file_path, "wb") as file:
-                    while True:
-                        chunk = await response.content.read(1024)
-                        if not chunk:
-                            break
-                        file.write(chunk)
+                while True:
+                    chunk = await response.content.read(1024)
+                    if not chunk:
+                        break
+                    file.write(chunk)
 
 
 def timer(func):
@@ -65,12 +64,12 @@ def create_objects(subfolder_name, num_objects):
 @timer
 def download_synchronous(c_list):
     for c in c_list:
-        c.download(dry_run=False)
+        c.download()
 
 
 async def async_download(c_list):
     async with aiohttp.ClientSession() as session:
-        tasks = [c.download_async(session, dry_run=False) for c in c_list]
+        tasks = [c.download_async(session) for c in c_list]
         await asyncio.gather(*tasks)
 
 
