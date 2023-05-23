@@ -12,6 +12,16 @@ from scipy.sparse.linalg import spsolve
 from shapely.geometry import Polygon, LineString
 from mycolorpy import colorlist as mcp
 
+from waxsreaders import *
+
+FORMATS = {
+    "asc" : get_xy_asc,
+    "itx" : get_xy_itx,
+    "ras" : get_xy_ras,
+    "scn" : get_xy_scn,
+    "xrdml" : get_xy_xrdml,
+}
+
 
 class Group:
     def __init__(self, code: str, name: str):
@@ -135,14 +145,7 @@ class Sample:
         self.age = age_hours
 
     def get_xy(self):
-        if self.format == "asc":
-            self.x, self.y = get_xy_asc(self.path)
-        elif self.format == "itx":
-            self.x, self.y = get_xy_itx(self.path)
-        elif self.format == "scn":
-            self.x, self.y = get_xy_scn(self.path)
-        else:
-            print("Could not read the file.")
+        self.x, self.y = FORMATS[self.format](self.path)
 
     def align(self):
         if self.format == "itx":
@@ -300,70 +303,13 @@ def make_groups(files: list):
     return groups
 
 
-def get_xy_asc(path: str):
-    lines = []
-    with open(path, "r") as f:
-        for line in f:
-            l_split = line.split()
-            lines.append(l_split)
-    lines = lines[:-1]
-    for j in lines:
-        number = float(j[0][:-6])
-        exponent = int(j[0][-1])
-        new_number = number * 10**exponent
-        j[0] = new_number
-        j[1] = int(j[1])
-    x = [round(x[0], 3) for x in lines]
-    y = [x[1] for x in lines]
-    return x, y
-
-
-def get_xy_itx(path: str):
-    lines = []
-    with open(path, "r") as f:
-        for line in f:
-            lines.append(line)
-    lines = lines[3:-13]
-    x_raw = [i.split(" ")[0] for i in lines]
-    y_raw = [i.split(" ")[1] for i in lines]
-    x = []
-    y = []
-    for j in range(0, len(x_raw)):
-        x_number = float(x_raw[j][:8])
-        x_exponent = int(x_raw[j][-1])
-        y_number = float(y_raw[j][:8])
-        y_exponent = int(y_raw[j][-1])
-        x_new_format = round(x_number * 10**x_exponent, 2)
-        y_new_format = round(y_number * 10**y_exponent, 10)
-        x.append(x_new_format)
-        y.append(y_new_format)
-    return x, y
-
-
-def get_xy_scn(path: str):
-    x = []
-    y = []
-    with open(path, "r") as f:
-        for line in f:
-            if len(line.split()) == 2:
-                one_x = float(line.split()[0])
-                one_y = float(line.split()[1])
-                x.append(one_x)
-                y.append(one_y)
-    return x, y
-
-
 if __name__ == "__main__":
     root = tk.Tk()
     root.withdraw()
     print("\nSelect the RTG data files")
     files = askopenfilenames(
-        title="Select the ITX, ASC or SCN files with RTG data.",
-        filetypes=[
-            ("RTG data files", ".itx"),
-            ("RTG data files", ".asc"),
-            ("RTG data files", ".scn"),
-        ],
+        title="Select the files with RTG data",
+        filetypes=[("RTG data files", ".asc .itx .ras .scn .xrdml")],
     )
     files_grouped = make_groups(files)
     print(f"\nWorking on {len(files)} files")
