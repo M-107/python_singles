@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 
-VIDEO_LINK = "https://file-examples.com/storage/fee0ed988b646cbee9f2340/2017/04/file_example_MP4_1920_18MG.mp4"
+VIDEO_LINK = "https://file-examples.com/wp-content/storage/2017/04/file_example_MP4_1920_18MG.mp4"
 WORKDIR = Path.home() / "test_downloads"
 BLUE = "\033[94m"
 WHITE = "\033[0m"
