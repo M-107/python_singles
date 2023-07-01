@@ -46,7 +46,6 @@ def get_hash(input_file, algorithm):
     """
     Get the hash of a single file"""
     hasher = getattr(hashlib, algorithm)()
-    print(type(input_file))
     for chunk in iter(lambda: input_file.read(4096), b""):
         hasher.update(chunk)
     click.echo(hasher.hexdigest())
