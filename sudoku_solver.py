@@ -1,4 +1,5 @@
 import numpy as np
+from time import perf_counter
 
 class Sudoku():
     def __init__(self) -> None:
@@ -127,13 +128,16 @@ def main():
     sudoku.set_state(initial_state)
     print("\n      Initial State      ")
     print(sudoku)
+    t_start = perf_counter()
     if sudoku.solve(True):
         print("\033[F"*2)
-        print("       Solved  State      ")
+        print("      Solved State       ")
         print(sudoku)
     else:
         print("This sudoku has no solution")
         print("\n" * 10)
+    t_end = perf_counter()
+    print(f"The solution took {round(t_end - t_start, 2)} seconds")
 
 if __name__ == "__main__":
     main()
