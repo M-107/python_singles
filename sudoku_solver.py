@@ -1,5 +1,10 @@
 import numpy as np
 
+WHITE = "\033[0m"
+RED = "\033[91m"
+GREEN = "\033[92m"
+BLUE = "\033[94m"
+
 class Sudoku():
     def __init__(self) -> None:
         self.array = np.zeros([9,9])
@@ -14,7 +19,30 @@ class Sudoku():
             for j in range(cols):
                 if j % 3 == 0 and j != 0:
                     output += "│ "
-                output += str(int(self.array[i][j])).replace("0", "_") + " "
+                if self.init_array[i][j] == 0 and not self.array[i][j] == 0:
+                    output += GREEN + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                else:
+                    output += str(int(self.array[i][j])).replace("0", "_") + " "
+            output += "\n"
+        return output
+
+    def print_me(self, current_x, current_y):
+        rows, cols = self.array.shape
+        output = ""
+        for i in range(rows):
+            if i % 3 == 0 and i != 0:
+                output += f"{'─'*6}┼{'─'*7}┼{'─'*6}" + "\n"
+            for j in range(cols):
+                if j % 3 == 0 and j != 0:
+                    output += "│ "
+                if i == current_x and j == current_y:
+                    output += BLUE + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                elif self.init_array[i][j] == 0 and self.array[i][j] == 0:
+                    output += RED + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                elif self.init_array[i][j] == 0:
+                    output += GREEN + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                else:
+                    output += str(int(self.array[i][j])).replace("0", "_") + " "
             output += "\n"
         return output
 
@@ -67,7 +95,7 @@ class Sudoku():
                 if self.array[i][j] == 0 and self.init_array[i][j] == 0:
                     for num in range(1, 10):
                         self.array[i][j] = num
-                        print(self, end="\033[F" * 11)
+                        print(self.print_me(i, j), end="\033[F" * 11)
                         if self.check():
                             if self._solve():
                                 return True
