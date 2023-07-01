@@ -114,7 +114,7 @@ class Sudoku:
 
     def solve(self, printout=False):
         if printout:
-            print("  Solving the sudoku...")
+            print("  Solving the sudoku...  ")
         if not self.check():
             return False
         return self._solve(printout)
@@ -160,7 +160,7 @@ def main():
         print("This sudoku has no solution")
         print("\n" * 10)
     t_end = perf_counter()
-    print(f"The solution took {round(t_end - t_start, 2)} seconds")
+    print(f"The solution took {sudoku.BLUE}{round(t_end - t_start, 2)}{sudoku.WHITE} seconds")
 
 
 if __name__ == "__main__":
