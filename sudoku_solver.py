@@ -12,9 +12,11 @@ class Sudoku():
     def __repr__(self):
         rows, cols = self.array.shape
         output = ""
+        output += f"┌{'─'*7}┬{'─'*7}┬{'─'*7}┐" + "\n"
         for i in range(rows):
             if i % 3 == 0 and i != 0:
-                output += f"{'─'*6}┼{'─'*7}┼{'─'*6}" + "\n"
+                output += f"├{'─'*7}┼{'─'*7}┼{'─'*7}┤" + "\n"
+            output += "│ "
             for j in range(cols):
                 if j % 3 == 0 and j != 0:
                     output += "│ "
@@ -22,15 +24,18 @@ class Sudoku():
                     output += self.GREEN + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
                 else:
                     output += str(int(self.array[i][j])).replace("0", "_") + " "
-            output += "\n"
+            output += "│\n"
+        output += f"└{'─'*7}┴{'─'*7}┴{'─'*7}┘" + "\n"
         return output
 
     def print_me(self, current_x, current_y):
         rows, cols = self.array.shape
         output = ""
+        output += f"┌{'─'*7}┬{'─'*7}┬{'─'*7}┐" + "\n"
         for i in range(rows):
             if i % 3 == 0 and i != 0:
-                output += f"{'─'*6}┼{'─'*7}┼{'─'*6}" + "\n"
+                output += f"├{'─'*7}┼{'─'*7}┼{'─'*7}┤" + "\n"
+            output += "│ "
             for j in range(cols):
                 if j % 3 == 0 and j != 0:
                     output += "│ "
@@ -42,7 +47,8 @@ class Sudoku():
                     output += self.GREEN + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
                 else:
                     output += str(int(self.array[i][j])).replace("0", "_") + " "
-            output += "\n"
+            output += "│\n"
+        output += f"└{'─'*7}┴{'─'*7}┴{'─'*7}┘" + "\n"
         return output
 
     def set_state(self, input: list):
@@ -83,7 +89,8 @@ class Sudoku():
         return True
 
     def solve(self, printout=False):
-        print("Solving the sudoku...")
+        if printout:
+            print("  Solving the sudoku...")
         if not self.check():
             return False
         return self._solve(printout)
@@ -95,7 +102,7 @@ class Sudoku():
                     for num in range(1, 10):
                         self.array[i][j] = num
                         if printout:
-                            print(self.print_me(i, j), end="\033[F" * 11)
+                            print(self.print_me(i, j), end="\033[F" * 13)
                         if self.check():
                             if self._solve(printout):
                                 return True
@@ -118,11 +125,11 @@ def main():
         [None, None, None, None, 8, None, None, 7, 9]
     ]
     sudoku.set_state(initial_state)
-    print(">>> Initial State <<<")
+    print("\n      Initial State      ")
     print(sudoku)
     if sudoku.solve(True):
         print("\033[F"*2)
-        print(">>> Solved  State <<<")
+        print("       Solved  State      ")
         print(sudoku)
     else:
         print("This sudoku has no solution")
