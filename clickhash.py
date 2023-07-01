@@ -1,12 +1,7 @@
 import hashlib
 import click
 
-algos = {
-    "sha1": "sha1",
-    "sha256": "sha256",
-    "sha512": "sha512",
-    "md5": "md5",
-}
+algos = ["sha1", "sha256", "sha512", "md5"]
 
 
 def input_file_option(prompt):
@@ -23,7 +18,7 @@ def algorithm_option():
     return click.option(
         "--algorithm", "-a",
         required=True,
-        type=click.Choice(algos.keys(), case_sensitive=False),
+        type=click.Choice(algos, case_sensitive=False),
         help="The type of hashing algorithm used",
         prompt="Hash algorithm to use",
     )
@@ -50,7 +45,8 @@ def cli():
 def get_hash(input_file, algorithm):
     """
     Get the hash of a single file"""
-    hasher = getattr(hashlib, algos[algorithm])()
+    hasher = getattr(hashlib, algorithm)()
+    print(type(input_file))
     for chunk in iter(lambda: input_file.read(4096), b""):
         hasher.update(chunk)
     click.echo(hasher.hexdigest())
@@ -62,7 +58,7 @@ def get_hash(input_file, algorithm):
 @hash_option()
 def check_hash(input_file, algorithm, hash_value):
     """Check the has of an existing file"""
-    hasher = getattr(hashlib, algos[algorithm])()
+    hasher = getattr(hashlib, algorithm)()
     for chunk in iter(lambda: input_file.read(4096), b""):
         hasher.update(chunk)
     if hasher.hexdigest() == hash_value:
