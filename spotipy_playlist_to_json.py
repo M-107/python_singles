@@ -60,12 +60,12 @@ def get_playlist_data(spotify, playlist_link):
     offset = 0
     while True:
         tracks = spotify.playlist_tracks(playlist_link, offset=offset)
-        if not tracks['items']:
+        if not tracks["items"]:
             break
-        for item in tracks['items']:
-            track_link = item['track']['external_urls']['spotify']
+        for item in tracks["items"]:
+            track_link = item["track"]["external_urls"]["spotify"]
             track_urls.append(track_link)
-        offset += len(tracks['items'])
+        offset += len(tracks["items"])
 
     track_dict_list = []
     for enum, track_id in enumerate(track_urls, 1):
@@ -77,8 +77,22 @@ def get_playlist_data(spotify, playlist_link):
         track_album = track_info["album"]["name"]
         track_album_art = track_info["album"]["images"][0]["url"]
         album_genres = spotify.album(track_info["album"]["id"])["genres"]
-        artists_genres = [genre for artist_genres in [spotify.artist(artist_id)["genres"] for artist_id in [artist["id"] for artist in track_info["artists"]]] if artist_genres for genre in artist_genres]
-        track_genres = album_genres if album_genres else list(set(artists_genres)) if artists_genres else []
+        artists_genres = [
+            genre
+            for artist_genres in [
+                spotify.artist(artist_id)["genres"]
+                for artist_id in [artist["id"] for artist in track_info["artists"]]
+            ]
+            if artist_genres
+            for genre in artist_genres
+        ]
+        track_genres = (
+            album_genres
+            if album_genres
+            else list(set(artists_genres))
+            if artists_genres
+            else []
+        )
 
         audio_features = spotify.audio_features(track_id)
         track = audio_features[0]

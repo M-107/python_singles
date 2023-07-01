@@ -11,7 +11,7 @@ BLUE = "\033[94m"
 WHITE = "\033[0m"
 
 
-class FolderClass():
+class FolderClass:
     def __init__(self, workdir, path, link):
         self.workdir = workdir
         self.path = path
@@ -51,13 +51,19 @@ def timer(func):
         result = func(*args, **kwargs)
         end_time = time.perf_counter()
         execution_time = end_time - start_time
-        print(f"    Function {BLUE}{func.__name__}{WHITE} executed in {BLUE}{round(execution_time, 3)}{WHITE} seconds")
+        print(
+            f"    Function {BLUE}{func.__name__}{WHITE} executed in {BLUE}{round(execution_time, 3)}{WHITE} seconds"
+        )
         return result
+
     return wrapper
 
 
 def create_objects(subfolder_name, num_objects):
-    c_list = [FolderClass(WORKDIR, f"{subfolder_name}/vid_{i}", VIDEO_LINK) for i in range(num_objects)]
+    c_list = [
+        FolderClass(WORKDIR, f"{subfolder_name}/vid_{i}", VIDEO_LINK)
+        for i in range(num_objects)
+    ]
     return c_list
 
 

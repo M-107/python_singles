@@ -41,7 +41,7 @@ def scat_plot(x, y, name):
 
     # Color the actuall data ticks accoring to wheter they are inside or outside the confidence bands
     for i in range(0, len(x)):
-        if pred['mean_ci_lower'][i] < y[i] < pred['mean_ci_upper'][i]:
+        if pred["mean_ci_lower"][i] < y[i] < pred["mean_ci_upper"][i]:
             col = color2
         else:
             col = color1
@@ -49,14 +49,16 @@ def scat_plot(x, y, name):
 
     # Plot the linear regression line, confidence bands are shows as an area
     ax.plot(x_pred, y_pred, color="black")
-    ax.fill_between(x_pred, pred['mean_ci_lower'], pred['mean_ci_upper'], color='black', alpha=0.1)
+    ax.fill_between(
+        x_pred, pred["mean_ci_lower"], pred["mean_ci_upper"], color="black", alpha=0.1
+    )
 
     plt.gcf().set_size_inches(16, 9)
     plt.savefig(f"{name}.png")
     plt.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     dose = [0, 15, 33, 45, 66, 99, 132, 165, 195]
     density_pa6 = [9.213, 9.220, 9.231, 9.210, 9.203, 9.182, 9.200, 9.164, 9.206]
     density_pa66 = [9.224, 9.277, 9.256, 9.248, 9.226, 9.227, 9.221, 9.237, 9.233]

@@ -58,13 +58,17 @@ def get_xy_xrdml(path: str):
             lines.append(line)
     for num, line in enumerate(lines):
         if '<positions axis="2Theta" unit="deg">' in line:
-            x_start_line = lines[num+1]
-            x_start = float(x_start_line[x_start_line.find(">") + 1:x_start_line.find("</")])
-            x_end_line = lines[num+2]
-            x_end = float(x_end_line[x_end_line.find(">") + 1:x_end_line.find("</")])
+            x_start_line = lines[num + 1]
+            x_start = float(
+                x_start_line[x_start_line.find(">") + 1 : x_start_line.find("</")]
+            )
+            x_end_line = lines[num + 2]
+            x_end = float(x_end_line[x_end_line.find(">") + 1 : x_end_line.find("</")])
         if '<intensities unit="counts">' in line:
             y_line = lines[num]
-            intensities_string = y_line.split('<intensities unit="counts">')[1].split("</intensities>")[0]
+            intensities_string = y_line.split('<intensities unit="counts">')[1].split(
+                "</intensities>"
+            )[0]
             y = [int(x) for x in intensities_string.split()]
     x = [float(x_start + i * (x_end - x_start) / (len(y) - 1)) for i in range(len(y))]
     return x, y

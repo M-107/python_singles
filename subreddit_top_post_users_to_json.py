@@ -102,7 +102,9 @@ def main():
 
                     if not any(user.name == comment_author for user in users):
                         users.append(User(comment_author))
-                    user_object = [user for user in users if user.name == comment_author][0]
+                    user_object = [
+                        user for user in users if user.name == comment_author
+                    ][0]
                     user_object.add_comment(
                         comment_id,
                         comment_date_cleaner,

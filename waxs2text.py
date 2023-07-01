@@ -3,11 +3,11 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilenames
 
 FORMATS = {
-    "asc" : get_xy_asc,
-    "itx" : get_xy_itx,
-    "ras" : get_xy_ras,
-    "scn" : get_xy_scn,
-    "xrdml" : get_xy_xrdml,
+    "asc": get_xy_asc,
+    "itx": get_xy_itx,
+    "ras": get_xy_ras,
+    "scn": get_xy_scn,
+    "xrdml": get_xy_xrdml,
 }
 
 print("Select the files with RTG data\n")
@@ -38,7 +38,7 @@ for file in files:
         new_x = f"{number}E+{new_exponent}"
         x_math_list.append(new_x)
     xy_list = list(zip(x_math_list, y_list))
-    with open(new_file, 'w') as f:
+    with open(new_file, "w") as f:
         for pair in xy_list:
             x, y = pair
             line = f"{x}  {y}\n"

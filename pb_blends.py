@@ -15,11 +15,11 @@ from mycolorpy import colorlist as mcp
 from waxsreaders import *
 
 FORMATS = {
-    "asc" : get_xy_asc,
-    "itx" : get_xy_itx,
-    "ras" : get_xy_ras,
-    "scn" : get_xy_scn,
-    "xrdml" : get_xy_xrdml,
+    "asc": get_xy_asc,
+    "itx": get_xy_itx,
+    "ras": get_xy_ras,
+    "scn": get_xy_scn,
+    "xrdml": get_xy_xrdml,
 }
 
 

@@ -12,13 +12,15 @@ def main():
     root = tk.Tk()
     root.withdraw()
     print("Select the cti file(s)")
-    ctis = askopenfilenames(title="Select the cti file(s)",
-                            filetypes=[("cti files", ".cti")])
+    ctis = askopenfilenames(
+        title="Select the cti file(s)", filetypes=[("cti files", ".cti")]
+    )
     do_prn = input("Would you like to analyze prn files as well? (Y/N)\n")
     if do_prn == "Y" or do_prn == "y":
         print("Select the prn file(s)")
-        prns = askopenfilenames(title="Select the prn file(s)",
-                                filetypes=[("prn files", ".prn")])
+        prns = askopenfilenames(
+            title="Select the prn file(s)", filetypes=[("prn files", ".prn")]
+        )
 
     gave_prn_error = 0
     for x, cti_file in enumerate(ctis, 1):
@@ -38,10 +40,16 @@ def main():
                     found_match = 1
                     break
             if found_match == 0:
-                print(f"Didn't find matching prn file for {cti_name}. Second excel sheet will not be created.")
+                print(
+                    f"Didn't find matching prn file for {cti_name}. Second excel sheet will not be created."
+                )
                 if gave_prn_error == 0:
-                    print("The names must be EXACTLY the same with prn name having additional '-prn' in the filename.")
-                    print("For example 'abc123.cti' and 'abc123-prn.prn' would get matched.")
+                    print(
+                        "The names must be EXACTLY the same with prn name having additional '-prn' in the filename."
+                    )
+                    print(
+                        "For example 'abc123.cti' and 'abc123-prn.prn' would get matched."
+                    )
                     gave_prn_error = 1
 
         # Read the cti file as lines
@@ -120,11 +128,8 @@ def main():
         for i in range(1, 19):
             ws_cti.column_dimensions[get_column_letter(i)].width = 13
             ws_cti[get_column_letter(i) + "2"].border = Border(
-                bottom=Side(
-                    border_style=BORDER_THIN,
-                    color="00000000"
-                    )
-                )
+                bottom=Side(border_style=BORDER_THIN, color="00000000")
+            )
 
         # Colour the cells
         col_yel = "FFE699"
@@ -166,35 +171,60 @@ def main():
             ws_cti["E" + str(i + 3)].value = float(s21_list[i])
             ws_cti["F" + str(i + 3)].value = f"=POWER(10,(E{i + 3}/20))"
             ws_cti["G" + str(i + 3)].value = f"=POWER(F{i + 3},2)*(100)"
-            ws_cti["H" + str(i + 3)].value = f"=SQRT(1-((POWER(C{i + 3},2))+(POWER(F{i + 3},2))))"
+            ws_cti[
+                "H" + str(i + 3)
+            ].value = f"=SQRT(1-((POWER(C{i + 3},2))+(POWER(F{i + 3},2))))"
             ws_cti["I" + str(i + 3)].value = f"=POWER(H{i + 3},2)*(100)"
             ws_cti["J" + str(i + 3)].value = f"=(D{i + 3}+G{i + 3}+I{i + 3})"
             ws_cti["K" + str(i + 3)].value = float(s12_list[i])
             ws_cti["L" + str(i + 3)].value = float(s22_list[i])
             ws_cti["M" + str(i + 3)].value = f"=ABS(10*LOG(1/ABS(1-B{i + 3}^2)))"
-            ws_cti["N" + str(i + 3)].value = f"=ABS(10*LOG(ABS((1-B{i + 3}^2)/K{i + 3}^2)))"
+            ws_cti[
+                "N" + str(i + 3)
+            ].value = f"=ABS(10*LOG(ABS((1-B{i + 3}^2)/K{i + 3}^2)))"
             ws_cti["O" + str(i + 3)].value = f"=ABS(M{i + 3}+N{i + 3})"
             ws_cti["P" + str(i + 3)].value = f"=10*LOG(1/(1-10^(B{i + 3}/10)))"
-            ws_cti["Q" + str(i + 3)].value = f"=10*LOG((1-10^(B{i + 3}/10))/10^(E{i + 3}/10))"
+            ws_cti[
+                "Q" + str(i + 3)
+            ].value = f"=10*LOG((1-10^(B{i + 3}/10))/10^(E{i + 3}/10))"
             ws_cti["R" + str(i + 3)].value = f"=ABS(P{i + 3}+Q{i + 3})"
             # Colour the cells for each collumn that needs it
-            ws_cti["C" + str(i + 3)].fill = PatternFill(fgColor=col_grn, fill_type="solid")
-            ws_cti["D" + str(i + 3)].fill = PatternFill(fgColor=col_grn, fill_type="solid")
-            ws_cti["F" + str(i + 3)].fill = PatternFill(fgColor=col_blu, fill_type="solid")
-            ws_cti["G" + str(i + 3)].fill = PatternFill(fgColor=col_blu, fill_type="solid")
-            ws_cti["H" + str(i + 3)].fill = PatternFill(fgColor=col_red, fill_type="solid")
-            ws_cti["I" + str(i + 3)].fill = PatternFill(fgColor=col_red, fill_type="solid")
-            ws_cti["J" + str(i + 3)].fill = PatternFill(fgColor=col_red, fill_type="solid")
-            ws_cti["P" + str(i + 3)].fill = PatternFill(fgColor=col_pin, fill_type="solid")
-            ws_cti["q" + str(i + 3)].fill = PatternFill(fgColor=col_pin, fill_type="solid")
-            ws_cti["r" + str(i + 3)].fill = PatternFill(fgColor=col_pin, fill_type="solid")
+            ws_cti["C" + str(i + 3)].fill = PatternFill(
+                fgColor=col_grn, fill_type="solid"
+            )
+            ws_cti["D" + str(i + 3)].fill = PatternFill(
+                fgColor=col_grn, fill_type="solid"
+            )
+            ws_cti["F" + str(i + 3)].fill = PatternFill(
+                fgColor=col_blu, fill_type="solid"
+            )
+            ws_cti["G" + str(i + 3)].fill = PatternFill(
+                fgColor=col_blu, fill_type="solid"
+            )
+            ws_cti["H" + str(i + 3)].fill = PatternFill(
+                fgColor=col_red, fill_type="solid"
+            )
+            ws_cti["I" + str(i + 3)].fill = PatternFill(
+                fgColor=col_red, fill_type="solid"
+            )
+            ws_cti["J" + str(i + 3)].fill = PatternFill(
+                fgColor=col_red, fill_type="solid"
+            )
+            ws_cti["P" + str(i + 3)].fill = PatternFill(
+                fgColor=col_pin, fill_type="solid"
+            )
+            ws_cti["q" + str(i + 3)].fill = PatternFill(
+                fgColor=col_pin, fill_type="solid"
+            )
+            ws_cti["r" + str(i + 3)].fill = PatternFill(
+                fgColor=col_pin, fill_type="solid"
+            )
             # Yellow the line when frequency ghz changes
             ghz = str(int(fre_list[i]))[:-9]
             if ghz != last_ghz:
                 for j in range(1, 19):
                     ws_cti[get_column_letter(j) + str(i + 3)].fill = PatternFill(
-                        fgColor=col_alr,
-                        fill_type="solid"
+                        fgColor=col_alr, fill_type="solid"
                     )
             last_ghz = ghz
 
@@ -207,11 +237,8 @@ def main():
             for i in range(1, 7):
                 ws_prn.column_dimensions[get_column_letter(i)].width = 13
                 ws_prn[get_column_letter(i) + "2"].border = Border(
-                    bottom=Side(
-                        border_style=BORDER_THIN,
-                        color="00000000"
-                        )
-                    )
+                    bottom=Side(border_style=BORDER_THIN, color="00000000")
+                )
             for i in range(0, len(prn_data)):
                 for j in range(0, len(prn_data[0])):
                     ws_prn[get_column_letter(i + 2) + str(j + 2)].value = prn_data[i][j]

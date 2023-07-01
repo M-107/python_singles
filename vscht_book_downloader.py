@@ -8,7 +8,9 @@ from PIL import Image
 def main():
     print("VSCHT Book Downloader\n")
     print("This tool downloads and merges books from the VSCHT website.")
-    print("The expected URL format is 'https://vydavatelstvi.vscht.cz/katalog/publikace?uid=uid_isbn-XXX-XX-XXXX-XXX-X'\n")
+    print(
+        "The expected URL format is 'https://vydavatelstvi.vscht.cz/katalog/publikace?uid=uid_isbn-XXX-XX-XXXX-XXX-X'\n"
+    )
     # Example (62 pages)
     # https://vydavatelstvi.vscht.cz/katalog/publikace?uid=uid_isbn-978-80-7592-112-3
     url_base = input("URL: ")

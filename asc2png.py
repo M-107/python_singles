@@ -15,7 +15,7 @@ def makeXY(file):
     for j in lines:
         number = float(j[0][:-6])
         exponent = int(j[0][-1])
-        newNumber = number * 10 ** exponent
+        newNumber = number * 10**exponent
         j[0] = newNumber
         j[1] = int(j[1])
     x = [x[0] for x in lines]
@@ -26,8 +26,9 @@ def makeXY(file):
 def main():
     root = tk.Tk()
     root.withdraw()
-    files = askopenfilenames(title="Select the ASC files with RTG data.",
-                             filetypes=[("ASC files", ".asc")])
+    files = askopenfilenames(
+        title="Select the ASC files with RTG data.", filetypes=[("ASC files", ".asc")]
+    )
 
     # Make a simple graphs from asc data
     for iNum, file in enumerate(files, 1):

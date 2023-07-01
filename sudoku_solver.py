@@ -1,10 +1,11 @@
 import numpy as np
 from time import perf_counter
 
-class Sudoku():
+
+class Sudoku:
     def __init__(self) -> None:
-        self.array = np.zeros([9,9])
-        self.init_array = np.zeros([9,9])
+        self.array = np.zeros([9, 9])
+        self.init_array = np.zeros([9, 9])
         self.WHITE = "\033[0m"
         self.RED = "\033[91m"
         self.GREEN = "\033[92m"
@@ -22,7 +23,12 @@ class Sudoku():
                 if j % 3 == 0 and j != 0:
                     output += "│ "
                 if self.init_array[i][j] == 0 and not self.array[i][j] == 0:
-                    output += self.GREEN + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
+                    output += (
+                        self.GREEN
+                        + str(int(self.array[i][j])).replace("0", "_")
+                        + self.WHITE
+                        + " "
+                    )
                 else:
                     output += str(int(self.array[i][j])).replace("0", "_") + " "
             output += "│\n"
@@ -41,11 +47,26 @@ class Sudoku():
                 if j % 3 == 0 and j != 0:
                     output += "│ "
                 if i == current_x and j == current_y:
-                    output += self.BLUE + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
+                    output += (
+                        self.BLUE
+                        + str(int(self.array[i][j])).replace("0", "_")
+                        + self.WHITE
+                        + " "
+                    )
                 elif self.init_array[i][j] == 0 and self.array[i][j] == 0:
-                    output += self.RED + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
+                    output += (
+                        self.RED
+                        + str(int(self.array[i][j])).replace("0", "_")
+                        + self.WHITE
+                        + " "
+                    )
                 elif self.init_array[i][j] == 0:
-                    output += self.GREEN + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
+                    output += (
+                        self.GREEN
+                        + str(int(self.array[i][j])).replace("0", "_")
+                        + self.WHITE
+                        + " "
+                    )
                 else:
                     output += str(int(self.array[i][j])).replace("0", "_") + " "
             output += "│\n"
@@ -68,7 +89,9 @@ class Sudoku():
                     self.array[i][j] = value
                     self.init_array[i][j] = value
                 else:
-                    raise ValueError(f"Invalid value found in input list: {value} at R{i+1} C{j+1}")
+                    raise ValueError(
+                        f"Invalid value found in input list: {value} at R{i+1} C{j+1}"
+                    )
 
     def check(self):
         for i in range(9):
@@ -82,7 +105,7 @@ class Sudoku():
             for j in range(0, 9, 3):
                 subgrid_values = [
                     value
-                    for value in self.array[i:i+3, j:j+3].flatten()
+                    for value in self.array[i : i + 3, j : j + 3].flatten()
                     if value != 0
                 ]
                 if len(subgrid_values) != len(set(subgrid_values)):
@@ -123,14 +146,14 @@ def main():
         [7, None, None, None, 2, None, None, None, 6],
         [None, 6, None, None, None, None, 2, 8, None],
         [None, None, None, 4, 1, 9, None, None, 5],
-        [None, None, None, None, 8, None, None, 7, 9]
+        [None, None, None, None, 8, None, None, 7, 9],
     ]
     sudoku.set_state(initial_state)
     print("\n      Initial State      ")
     print(sudoku)
     t_start = perf_counter()
     if sudoku.solve(True):
-        print("\033[F"*2)
+        print("\033[F" * 2)
         print("      Solved State       ")
         print(sudoku)
     else:
@@ -138,6 +161,7 @@ def main():
         print("\n" * 10)
     t_end = perf_counter()
     print(f"The solution took {round(t_end - t_start, 2)} seconds")
+
 
 if __name__ == "__main__":
     main()

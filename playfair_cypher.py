@@ -56,7 +56,7 @@ def make_table(key):
     alphabet_list = [x for x in alphabet]
     # Turn the alphabet indo a 5x5 array
     table = [
-        alphabet_list[i * 5: (i + 1) * 5]
+        alphabet_list[i * 5 : (i + 1) * 5]
         for i in range((len(alphabet_list) + 5 - 1) // 5)
     ]
     return table

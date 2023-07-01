@@ -6,7 +6,8 @@ algos = ["sha1", "sha256", "sha512", "md5"]
 
 def input_file_option(prompt):
     return click.option(
-        "--input-file", "-if",
+        "--input-file",
+        "-if",
         required=True,
         type=click.File(mode="rb"),
         help="Path to file for hashing",
@@ -16,7 +17,8 @@ def input_file_option(prompt):
 
 def algorithm_option():
     return click.option(
-        "--algorithm", "-a",
+        "--algorithm",
+        "-a",
         required=True,
         type=click.Choice(algos, case_sensitive=False),
         help="The type of hashing algorithm used",
@@ -26,7 +28,8 @@ def algorithm_option():
 
 def hash_option():
     return click.option(
-        "--hash-value", "-h",
+        "--hash-value",
+        "-h",
         required=True,
         type=click.STRING,
         help="Hash value to check against",
@@ -69,5 +72,5 @@ def check_hash(input_file, algorithm, hash_value):
 cli.add_command(get_hash)
 cli.add_command(check_hash)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
