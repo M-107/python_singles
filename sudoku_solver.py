@@ -83,21 +83,22 @@ class Sudoku():
                     return False
         return True
 
-    def solve(self):
+    def solve(self, printout=False):
         print("Solving the sudoku...")
         if not self.check():
             return False
-        return self._solve()
+        return self._solve(printout)
 
-    def _solve(self):
+    def _solve(self, printout):
         for i in range(9):
             for j in range(9):
                 if self.array[i][j] == 0 and self.init_array[i][j] == 0:
                     for num in range(1, 10):
                         self.array[i][j] = num
-                        print(self.print_me(i, j), end="\033[F" * 11)
+                        if printout:
+                            print(self.print_me(i, j), end="\033[F" * 11)
                         if self.check():
-                            if self._solve():
+                            if self._solve(printout):
                                 return True
                     self.array[i][j] = 0
                     return False
@@ -120,7 +121,7 @@ def main():
     sudoku.set_state(initial_state)
     print(">>> Initial State <<<")
     print(sudoku)
-    if sudoku.solve():
+    if sudoku.solve(True):
         print("\033[F"*2)
         print(">>> Solved  State <<<")
         print(sudoku)
