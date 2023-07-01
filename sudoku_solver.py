@@ -1,14 +1,13 @@
 import numpy as np
 
-WHITE = "\033[0m"
-RED = "\033[91m"
-GREEN = "\033[92m"
-BLUE = "\033[94m"
-
 class Sudoku():
     def __init__(self) -> None:
         self.array = np.zeros([9,9])
         self.init_array = np.zeros([9,9])
+        self.WHITE = "\033[0m"
+        self.RED = "\033[91m"
+        self.GREEN = "\033[92m"
+        self.BLUE = "\033[94m"
 
     def __repr__(self):
         rows, cols = self.array.shape
@@ -20,7 +19,7 @@ class Sudoku():
                 if j % 3 == 0 and j != 0:
                     output += "│ "
                 if self.init_array[i][j] == 0 and not self.array[i][j] == 0:
-                    output += GREEN + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                    output += self.GREEN + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
                 else:
                     output += str(int(self.array[i][j])).replace("0", "_") + " "
             output += "\n"
@@ -36,11 +35,11 @@ class Sudoku():
                 if j % 3 == 0 and j != 0:
                     output += "│ "
                 if i == current_x and j == current_y:
-                    output += BLUE + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                    output += self.BLUE + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
                 elif self.init_array[i][j] == 0 and self.array[i][j] == 0:
-                    output += RED + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                    output += self.RED + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
                 elif self.init_array[i][j] == 0:
-                    output += GREEN + str(int(self.array[i][j])).replace("0", "_") + WHITE + " "
+                    output += self.GREEN + str(int(self.array[i][j])).replace("0", "_") + self.WHITE + " "
                 else:
                     output += str(int(self.array[i][j])).replace("0", "_") + " "
             output += "\n"
