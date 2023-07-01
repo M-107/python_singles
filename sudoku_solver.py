@@ -1,6 +1,6 @@
 import numpy as np
 
-class Board():
+class Sudoku():
     def __init__(self) -> None:
         self.array = np.zeros([9,9])
         self.init_array = np.zeros([9,9])
@@ -10,10 +10,10 @@ class Board():
         output = ""
         for i in range(rows):
             if i % 3 == 0 and i != 0:
-                output += "-" * (cols * 2 + 3) + "\n"
+                output += f"{'─'*6}┼{'─'*7}┼{'─'*6}" + "\n"
             for j in range(cols):
                 if j % 3 == 0 and j != 0:
-                    output += "| "
+                    output += "│ "
                 output += str(int(self.array[i][j])).replace("0", "_") + " "
             output += "\n"
         return output
@@ -77,7 +77,7 @@ class Board():
 
 
 def main():
-    sudoku = Board()
+    sudoku = Sudoku()
     initial_state = [
         [5, 3, None, None, 7, None, None, None, None],
         [6, None, None, 1, 9, 5, None, None, None],
