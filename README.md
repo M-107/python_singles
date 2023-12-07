@@ -21,9 +21,9 @@
 
 **spotify_playlist_to_json** - Converts a Spotify playlist with all available infor for each track into a JSON file.
 
-**setlist2json** - Takes the bands from a list and generates a JSON with their most played songs at shows according to setlist.fm (The JSON might need some cleanup with i.e. foreign characters)
+**setlist2json** - Takes the bands from a list and generates a JSON file with their most played songs at shows according to setlist.fm (The JSON might need some cleanup with i.e. foreign characters)
 
-**json2spotify** = Takes the JSON from created by previous script and created Spotify playlists out of it.
+**json2spotify** - Takes the JSON from created by previous script and creates Spotify playlists out of it.
 
 
 ## Reddit Stuff
