@@ -36,6 +36,9 @@
 **reddit_thread_activity**
 * Measures how active a specific reddit thread is over time (how many new comments appear each 'x' seconds).
 
+**setlist2json**
+* Takes the bands from a list and generates a JSON with their most played songs at shows according to setlist.fm
+
 **spotify_playlist_to_json**
 * Converts a Spotify playlist with all available infor for each track into a JSON file.
 
