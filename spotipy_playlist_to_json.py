@@ -45,7 +45,7 @@ def init_spotify():
     return spotify
 
 
-def get_playlist_data(spotify, playlist_link):
+def get_playlist_data(spotify: spotipy.Spotify, playlist_link):
     while True:
         try:
             playlist = spotify.playlist(playlist_link)

@@ -3,7 +3,7 @@ __pycache__/
 build/
 dist/
 .credentials.yaml
-.cache
+.cache*
 .flake8
 *.json
 *.csv
