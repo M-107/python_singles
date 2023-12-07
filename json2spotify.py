@@ -28,7 +28,7 @@ def init_spotify():
 
 
 def get_artist_dict():
-    with open("artists_setlists_clean_sorted.json", "r") as input:
+    with open("artists_setlists_cleaned.json", "r") as input:
         json_artists = json.load(input)
         return json_artists
 
