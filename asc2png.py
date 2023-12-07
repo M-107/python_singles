@@ -1,8 +1,9 @@
 import os
 import tkinter as tk
 from tkinter.filedialog import askopenfilenames
-from matplotlib import pyplot as plt
+
 import seaborn as sns
+from matplotlib import pyplot as plt
 
 
 def makeXY(file):

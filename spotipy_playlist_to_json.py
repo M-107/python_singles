@@ -1,6 +1,7 @@
 import json
-import yaml
+
 import spotipy
+import yaml
 from spotipy.oauth2 import SpotifyClientCredentials
 
 D_KEYS = {

@@ -1,16 +1,17 @@
 import os
-from time import time
-from datetime import datetime
-import numpy as np
 import tkinter as tk
+from datetime import datetime
+from time import time
 from tkinter.filedialog import askopenfilenames
-from matplotlib import pyplot as plt
+
+import numpy as np
 import seaborn as sns
+from matplotlib import pyplot as plt
+from mycolorpy import colorlist as mcp
 from scipy import sparse
 from scipy.signal import find_peaks
 from scipy.sparse.linalg import spsolve
-from shapely.geometry import Polygon, LineString
-from mycolorpy import colorlist as mcp
+from shapely.geometry import LineString, Polygon
 
 from waxsreaders import *
 

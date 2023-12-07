@@ -1,6 +1,7 @@
-from waxsreaders import *
 import tkinter as tk
 from tkinter.filedialog import askopenfilenames
+
+from waxsreaders import *
 
 FORMATS = {
     "asc": get_xy_asc,

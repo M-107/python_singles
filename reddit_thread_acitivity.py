@@ -1,7 +1,8 @@
 import datetime
-import yaml
+
 import praw
 import xlsxwriter
+import yaml
 
 
 def init_reddit():

@@ -1,7 +1,8 @@
-import json
-import yaml
 import datetime
+import json
+
 import praw
+import yaml
 
 
 def init_reddit():

@@ -1,9 +1,9 @@
-import aiohttp
 import asyncio
-import requests
 import time
 from pathlib import Path
 
+import aiohttp
+import requests
 
 VIDEO_LINK = "https://file-examples.com/wp-content/storage/2017/04/file_example_MP4_1920_18MG.mp4"
 WORKDIR = Path.home() / "test_downloads"

@@ -1,10 +1,11 @@
 import os
 import tkinter as tk
 from tkinter.filedialog import askopenfilenames
+
 from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill
-from openpyxl.styles.borders import Border, Side, BORDER_THIN
+from openpyxl.styles.borders import BORDER_THIN, Border, Side
+from openpyxl.utils import get_column_letter
 
 
 def main():

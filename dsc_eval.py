@@ -1,9 +1,10 @@
 import os
-import numpy as np
 import tkinter as tk
 from tkinter.filedialog import askopenfilenames
-from matplotlib import pyplot as plt
+
+import numpy as np
 import seaborn as sns
+from matplotlib import pyplot as plt
 from scipy.signal import find_peaks
 
 DEBUG = 0

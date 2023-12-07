@@ -1,7 +1,8 @@
-import numpy as np
-from time import perf_counter
-import keyboard
 import subprocess
+from time import perf_counter
+
+import keyboard
+import numpy as np
 
 
 class Sudoku:
@@ -133,7 +134,6 @@ class Sudoku:
                 is_key_pressed = False
             print(self.print_me(current_x, current_y), end="\033[F" * 13)
 
-
     def check(self):
         for i in range(9):
             row_values = [value for value in self.array[i] if value != 0]
@@ -188,7 +188,9 @@ def solve_timer(sudoku):
         print("This sudoku has no solution")
         print("\n" * 12)
     t_end = perf_counter()
-    print(f"The solution took {sudoku.BLUE}{round(t_end - t_start, 2)}{sudoku.WHITE} seconds")
+    print(
+        f"The solution took {sudoku.BLUE}{round(t_end - t_start, 2)}{sudoku.WHITE} seconds"
+    )
 
 
 def main_set_hardcoded():

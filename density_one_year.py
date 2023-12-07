@@ -1,9 +1,9 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from scipy import stats
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
+from scipy import stats
 
 
 # Make a scatter plot from a sinlge set of XY data

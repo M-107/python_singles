@@ -1,4 +1,5 @@
 import hashlib
+
 import click
 
 algos = ["sha1", "sha256", "sha512", "md5"]

@@ -1,7 +1,8 @@
 import os
-import sys
 import shutil
+import sys
 import urllib.request
+
 from PIL import Image
 
 

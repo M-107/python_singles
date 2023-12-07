@@ -1,6 +1,7 @@
 import re
-import requests
+
 import pandas as pd
+import requests
 
 url = "https://www.sreality.cz/api/cs/v2/estates"
 
