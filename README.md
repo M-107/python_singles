@@ -25,6 +25,8 @@
 
 **json2spotify** - Takes the JSON created by previous script and creates Spotify playlists out of it.
 
+**artist2playlist** - Combination of the previous two scripts. Asks for a name and generates a playlist with most played songs for a single artist.
+
 
 ## Reddit Stuff
 
