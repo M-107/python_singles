@@ -53,7 +53,6 @@ def get_artist_songs(artist: str):
                     songs[song_name_string] += 1
                 else:
                     songs[song_name_string] = 1
-    print(f"    Found songs played live by this artist")
     return songs
 
 
@@ -113,6 +112,7 @@ def main(name, playlist_format):
     playlist_name = template.render(name=name)
     songs = get_artist_songs(artist=name)
     if len(songs) > 0:
+        print(f"    Found songs played by {name}")
         songs_sorted = get_sorted_song_list(songs=songs)
         create_playlist(artist=name, songs=songs_sorted, playlist_name=playlist_name)
     else:

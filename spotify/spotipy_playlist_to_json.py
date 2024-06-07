@@ -34,7 +34,7 @@ D_TSIG = {
 
 
 def init_spotify():
-    with open(".credentials.yaml", "r") as f:
+    with open("./.credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
     spotify = spotipy.Spotify(
         client_credentials_manager=SpotifyClientCredentials(
@@ -90,9 +90,7 @@ def get_playlist_data(spotify: spotipy.Spotify, playlist_link):
         track_genres = (
             album_genres
             if album_genres
-            else list(set(artists_genres))
-            if artists_genres
-            else []
+            else list(set(artists_genres)) if artists_genres else []
         )
 
         audio_features = spotify.audio_features(track_id)

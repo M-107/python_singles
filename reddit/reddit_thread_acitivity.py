@@ -6,7 +6,7 @@ import yaml
 
 
 def init_reddit():
-    with open(".credentials.yaml", "r") as f:
+    with open("./.credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
     reddit = praw.Reddit(
         client_id=credentials["reddit"]["client_id"],
@@ -48,9 +48,7 @@ def dump_data(comment_times_only, time_interval):
     time_interval_z = "00"
     first_e = comment_times_only[0]
     point_zero = first_e.replace(first_e[-2:], time_interval_z)
-    secs_z = sum(
-        int(x) * 60**i for i, x in enumerate(reversed(point_zero.split(":")))
-    )
+    secs_z = sum(int(x) * 60**i for i, x in enumerate(reversed(point_zero.split(":"))))
     list_final = []
 
     while True:

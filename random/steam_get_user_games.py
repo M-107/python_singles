@@ -5,7 +5,7 @@ from steam import Steam
 
 
 def init_steam():
-    with open(".credentials.yaml", "r") as f:
+    with open("./.credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
     steam = Steam(credentials["steam"]["api_key"])
     return steam

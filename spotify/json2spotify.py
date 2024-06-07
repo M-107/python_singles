@@ -6,7 +6,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 
 def get_spotify_user_id():
-    with open(".credentials.yaml", "r") as f:
+    with open("./.credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
         user_id = credentials["spotify"]["user_id"]
     return user_id
