@@ -13,7 +13,7 @@ def get_spotify_user_id():
 
 
 def init_spotify():
-    with open(".credentials.yaml", "r") as f:
+    with open("./.credentials.yaml", "r") as f:
         credentials = yaml.safe_load(f)
     spotify = spotipy.Spotify(
         auth_manager=SpotifyOAuth(
