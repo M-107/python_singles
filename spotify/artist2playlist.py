@@ -88,8 +88,8 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
     songs_uris_from_artist = []
     for uri in unique_song_uris:
         song = spotify.track(track_id=uri)
-        names = [artist["name"] for artist in song["artists"]]
-        if artist in names:
+        names = [str(artist["name"]).lower() for artist in song["artists"]]
+        if artist.lower() in names:
             songs_uris_from_artist.append(uri)
 
     spotify.user_playlist_add_tracks(
