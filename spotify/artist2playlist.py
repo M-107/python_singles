@@ -1,3 +1,5 @@
+import click
+import jinja2
 import requests
 import spotipy
 import yaml
@@ -60,11 +62,10 @@ def get_sorted_song_list(songs: dict):
     return list(sorted_songs.keys())
 
 
-def create_playlist(artist: str, songs: list):
+def create_playlist(artist: str, songs: list, playlist_name: str):
     user_id = get_spotify_user_id()
     spotify = init_spotify()
 
-    playlist_name = f"{artist} - Most played live"
     song_uris = []
     for song in songs:
         search_query = f"{artist} {song}"
@@ -90,14 +91,19 @@ def create_playlist(artist: str, songs: list):
     print(f"Created playlist {playlist_name} with {len(song_uris)} songs")
 
 
-def main():
-    artist_name = input("Artist Name: ")
-    songs = get_artist_songs(artist=artist_name)
+@click.command()
+@click.option("-n", "--name", prompt="Artist Name")
+@click.option("-pf", "--playlist-format", default="{{name}} - Most Played Live")
+def main(name, playlist_format):
+    environment = jinja2.Environment()
+    template = environment.from_string(playlist_format)
+    playlist_name = template.render(name=name)
+    songs = get_artist_songs(artist=name)
     if len(songs) > 0:
         songs_sorted = get_sorted_song_list(songs=songs)
-        create_playlist(artist=artist_name, songs=songs_sorted)
+        create_playlist(artist=name, songs=songs_sorted, playlist_name=playlist_name)
     else:
-        print(f"No songs found for {artist_name}")
+        print(f"No songs found for {name}")
         print(
             "    There are either no published setlists or a typo in the artist name."
         )
