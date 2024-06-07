@@ -53,7 +53,7 @@ def get_artist_songs(artist: str):
                     songs[song_name_string] += 1
                 else:
                     songs[song_name_string] = 1
-    print(f"    Found {len(songs)} songs played live by this artist")
+    print(f"    Found songs played live by this artist")
     return songs
 
 
@@ -84,9 +84,8 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
         public=True,
     )
     playlist_id = playlist["uri"]
-
     spotify.user_playlist_add_tracks(
-        user=user_id, playlist_id=playlist_id, tracks=song_uris
+        user=user_id, playlist_id=playlist_id, tracks=list(set(song_uris))
     )
     print(f"Created playlist {playlist_name} with {len(song_uris)} songs")
 
