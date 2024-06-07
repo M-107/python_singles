@@ -1,5 +1,3 @@
-import sys
-
 import click
 import jinja2
 import requests
@@ -102,8 +100,13 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
 
 
 @click.command()
-@click.option("-n", "--name", prompt="Artist Name")
-@click.option("-pf", "--playlist-format", default="{{name}} - Most Played Live")
+@click.option("-n", "--name", prompt="Artist Name", help="Name of the artist")
+@click.option(
+    "-pf",
+    "--playlist-format",
+    default="{{name}} - Most Played Live",
+    help="Playlist name format. Use {{name}} to use the entered artist name. Default is: {{name}} - Most Played Live",
+)
 def main(name, playlist_format):
     environment = jinja2.Environment()
     template = environment.from_string(playlist_format)
