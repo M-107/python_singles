@@ -1,3 +1,5 @@
+import sys
+
 import click
 import jinja2
 import requests
@@ -84,10 +86,19 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
         public=True,
     )
     playlist_id = playlist["uri"]
+
+    unique_song_uris = list(set(song_uris))
+    songs_uris_from_artist = []
+    for uri in unique_song_uris:
+        song = spotify.track(track_id=uri)
+        names = [artist["name"] for artist in song["artists"]]
+        if artist in names:
+            songs_uris_from_artist.append(uri)
+
     spotify.user_playlist_add_tracks(
-        user=user_id, playlist_id=playlist_id, tracks=list(set(song_uris))
+        user=user_id, playlist_id=playlist_id, tracks=songs_uris_from_artist
     )
-    print(f"Created playlist {playlist_name} with {len(song_uris)} songs")
+    print(f"Created playlist {playlist_name} with {len(songs_uris_from_artist)} songs")
 
 
 @click.command()
