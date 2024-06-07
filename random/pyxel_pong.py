@@ -140,9 +140,9 @@ class App:
         pyxel.init(320, 180, "PONG", fps=60)
         pyxel.load(r"pong_assets.pyxres")
         self.ball = Ball(160, 90, 2, 2)
-        self.player1 = Player(2, 80, 0, [pyxel.KEY_UP, pyxel.KEY_DOWN], 0)
+        # self.player1 = Player(2, 80, 0, [pyxel.KEY_UP, pyxel.KEY_DOWN], 0)
         # self.player2 = Player(314, 80, 0, [pyxel.KEY_W, pyxel.KEY_S], 1)
-        # self.player1 = PlayerAI(2, 80, 0, 0, self.ball)
+        self.player1 = PlayerAI(2, 80, 0, 0, self.ball)
         self.player2 = PlayerAI(314, 80, 0, 1, self.ball)
         self.director = Director(self.player1, self.player2, self.ball)
         self.winner = None

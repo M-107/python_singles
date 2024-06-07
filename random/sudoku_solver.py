@@ -218,5 +218,5 @@ def main_set_manually():
 
 
 if __name__ == "__main__":
-    # main_set_hardcoded()
-    main_set_manually()
+    main_set_hardcoded()
+    # main_set_manually()
