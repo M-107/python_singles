@@ -2,7 +2,7 @@ venv/
 __pycache__/
 build/
 dist/
-.credentials.yaml
+.credentials*
 .cache*
 .flake8
 *.json

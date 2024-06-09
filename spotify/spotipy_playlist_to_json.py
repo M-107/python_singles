@@ -34,7 +34,7 @@ D_TSIG = {
 
 
 def init_spotify():
-    with open("./.credentials.yaml", "r") as f:
+    with open("./.credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
     spotify = spotipy.Spotify(
         client_credentials_manager=SpotifyClientCredentials(

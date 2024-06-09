@@ -5,14 +5,14 @@ from steam import Steam
 
 
 def init_steam():
-    with open("./.credentials.yaml", "r") as f:
+    with open("./.credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
     steam = Steam(credentials["steam"]["api_key"])
     return steam
 
 
 def get_my_id():
-    with open(".credentials.yaml", "r") as f:
+    with open(".credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
     my_id = credentials["steam"]["my_id"]
     return my_id

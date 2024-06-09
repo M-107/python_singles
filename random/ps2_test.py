@@ -24,7 +24,7 @@ class Planetside:
 
 
 def init_planetside():
-    with open("./.credentials.yaml", "r") as f:
+    with open("./.credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
     planetside = Planetside(service_id=credentials["planetside"]["service_id"])
     return planetside

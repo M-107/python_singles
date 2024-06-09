@@ -8,14 +8,14 @@ from spotipy.oauth2 import SpotifyOAuth
 
 
 def get_spotify_user_id():
-    with open("./.credentials.yaml", "r") as f:
+    with open("./.credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
         user_id = credentials["spotify"]["user_id"]
     return user_id
 
 
 def init_spotify():
-    with open(".credentials.yaml", "r") as f:
+    with open(".credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
     spotify = spotipy.Spotify(
         auth_manager=SpotifyOAuth(
@@ -64,7 +64,6 @@ def get_sorted_song_list(songs: dict):
 def create_playlist(artist: str, songs: list, playlist_name: str):
     user_id = get_spotify_user_id()
     spotify = init_spotify()
-
     song_uris = []
     for song in songs:
         search_query = f"{artist} {song}"
@@ -75,27 +74,20 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
         )
         search_result_items = search_result["tracks"]["items"]
         song_uri = search_result_items[0]["uri"]
-        song_uris.append(song_uri)
-
+        if song_uri not in song_uris and artist.lower() in [
+            str(artist["name"]).lower()
+            for artist in spotify.track(track_id=song_uri)["artists"]
+        ]:
+            song_uris.append(song_uri)
     playlist = spotify.user_playlist_create(
         user=user_id,
         name=playlist_name,
         public=True,
     )
-    playlist_id = playlist["uri"]
-
-    unique_song_uris = list(set(song_uris))
-    songs_uris_from_artist = []
-    for uri in unique_song_uris:
-        song = spotify.track(track_id=uri)
-        names = [str(artist["name"]).lower() for artist in song["artists"]]
-        if artist.lower() in names:
-            songs_uris_from_artist.append(uri)
-
     spotify.user_playlist_add_tracks(
-        user=user_id, playlist_id=playlist_id, tracks=songs_uris_from_artist
+        user=user_id, playlist_id=playlist["uri"], tracks=song_uris
     )
-    print(f"Created playlist {playlist_name} with {len(songs_uris_from_artist)} songs")
+    print(f"Created playlist {playlist_name} with {len(song_uris)} songs")
 
 
 @click.command()

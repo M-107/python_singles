@@ -6,7 +6,7 @@ import yaml
 
 
 def init_reddit():
-    with open("./.credentials.yaml", "r") as f:
+    with open("./.credentials.yml", "r") as f:
         credentials = yaml.safe_load(f)
     reddit = praw.Reddit(
         client_id=credentials["reddit"]["client_id"],
