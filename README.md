@@ -37,6 +37,8 @@
 
 ## Random Stuff
 
+**ab2data** - Tool for transforming bank statements from AirBank to usable data formats (csv, json, jsonl), as the bank only supplies them as PDFs to regular account holders.
+
 **clickhash** - Simple CLI tool that hashes and unhashes strings or files.
 
 **sudoku_solver** - Bruteforce Sudoku solver. Initial state can be entered manually. The solution progress is visualised, which can be turned off for increased performance.
