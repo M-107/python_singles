@@ -37,7 +37,7 @@
 
 ## Random Stuff
 
-**ab2data** - Tool for transforming bank statements from AirBank to usable data formats (csv, json, jsonl), as the bank only supplies them as PDFs to regular account holders.
+**ab2data** - Tool for transforming bank statements from AirBank to usable data formats (CSV, JSON, JSONL), as the bank only supplies them as PDFs to regular account holders.
 
 **clickhash** - Simple CLI tool that hashes and unhashes strings or files.
 
