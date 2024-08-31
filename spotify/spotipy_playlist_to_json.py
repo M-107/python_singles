@@ -1,7 +1,7 @@
 import json
+from os import environ
 
 import spotipy
-import yaml
 from spotipy.oauth2 import SpotifyClientCredentials
 
 D_KEYS = {
@@ -34,12 +34,10 @@ D_TSIG = {
 
 
 def init_spotify():
-    with open("./.credentials.yml", "r") as f:
-        credentials = yaml.safe_load(f)
     spotify = spotipy.Spotify(
         client_credentials_manager=SpotifyClientCredentials(
-            client_id=credentials["spotify"]["client_id"],
-            client_secret=credentials["spotify"]["client_secret"],
+            client_id=environ["SPOTIFY_CLIENT_ID"],
+            client_secret=environ["SPOTIFY_CLIENT_SECRET"],
         )
     )
     return spotify

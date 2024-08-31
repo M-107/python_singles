@@ -1,27 +1,18 @@
 import json
+from os import environ
 
 import spotipy
-import yaml
 from spotipy.oauth2 import SpotifyOAuth
 
 
-def get_spotify_user_id():
-    with open("./.credentials.yml", "r") as f:
-        credentials = yaml.safe_load(f)
-        user_id = credentials["spotify"]["user_id"]
-    return user_id
-
-
 def init_spotify():
-    with open("./.credentials.yml", "r") as f:
-        credentials = yaml.safe_load(f)
     spotify = spotipy.Spotify(
         auth_manager=SpotifyOAuth(
             scope="playlist-modify-public",
-            client_id=credentials["spotify"]["client_id"],
-            client_secret=credentials["spotify"]["client_secret"],
+            client_id=environ["SPOTIFY_CLIENT_ID"],
+            client_secret=environ["SPOTIFY_CLIENT_SECRET"],
             redirect_uri="http://localhost",
-            username=credentials["spotify"]["user_id"],
+            username=environ["SPOTIFY_USER_ID"],
         )
     )
     return spotify
@@ -34,7 +25,7 @@ def get_artist_dict():
 
 
 def create_playlists(json_artists: dict):
-    user_id = get_spotify_user_id()
+    user_id = environ["SPOTIFY_USER_ID"]
     spotify = init_spotify()
 
     for artist in json_artists:

@@ -1,26 +1,12 @@
 import json
+from os import environ
 
-import yaml
 from steam import Steam
 
 
-def init_steam():
-    with open("./.credentials.yml", "r") as f:
-        credentials = yaml.safe_load(f)
-    steam = Steam(credentials["steam"]["api_key"])
-    return steam
-
-
-def get_my_id():
-    with open(".credentials.yml", "r") as f:
-        credentials = yaml.safe_load(f)
-    my_id = credentials["steam"]["my_id"]
-    return my_id
-
-
 def main():
-    steam = init_steam()
-    my_id = get_my_id()
+    steam = Steam(environ["STEAM_API_KEY"])
+    my_id = environ["STEAM_MY_ID"]
     my_games = steam.users.get_owned_games(steam_id=my_id)
     print(f"Found {my_games['game_count']} games")
     game_dict = my_games["games"]

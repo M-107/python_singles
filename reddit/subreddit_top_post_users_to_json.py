@@ -1,19 +1,17 @@
 import datetime
 import json
+from os import environ
 
 import praw
-import yaml
 
 
 def init_reddit():
-    with open("./.credentials.yml", "r") as f:
-        credentials = yaml.safe_load(f)
     reddit = praw.Reddit(
-        client_id=credentials["reddit"]["client_id"],
-        client_secret=credentials["reddit"]["client_secret"],
-        password=credentials["reddit"]["password"],
-        user_agent=credentials["reddit"]["user_agent"],
-        username=credentials["reddit"]["username"],
+        client_id=environ["REDDIT_CLIENT_ID"],
+        client_secret=environ["REDDIT_CLIENT_SECRET"],
+        password=environ["REDDIT_PASSWORD"],
+        user_agent=environ["REDDIT_USER_AGENT"],
+        username=environ["REDDIT_USERNAME"],
     )
     return reddit
 
