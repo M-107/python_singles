@@ -83,7 +83,9 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
 
 
 @click.command()
-@click.option("-n", "--name", prompt="Artist Name", help="Name of the artist")
+@click.option(
+    "-n", "--name", prompt="Artist Name", help="Name of the artist", multiple=True
+)
 @click.option(
     "-pf",
     "--playlist-format",
@@ -93,17 +95,20 @@ def create_playlist(artist: str, songs: list, playlist_name: str):
 def main(name, playlist_format):
     environment = jinja2.Environment()
     template = environment.from_string(playlist_format)
-    playlist_name = template.render(name=name)
-    songs = get_artist_songs(artist=name)
-    if len(songs) > 0:
-        print(f"    Found songs played by {name}")
-        songs_sorted = get_sorted_song_list(songs=songs)
-        create_playlist(artist=name, songs=songs_sorted, playlist_name=playlist_name)
-    else:
-        print(f"No songs found for {name}")
-        print(
-            "    There are either no published setlists or a typo in the artist name."
-        )
+    for one_name in name:
+        playlist_name = template.render(name=one_name)
+        songs = get_artist_songs(artist=one_name)
+        if len(songs) > 0:
+            print(f"    Found songs played by {one_name}")
+            songs_sorted = get_sorted_song_list(songs=songs)
+            create_playlist(
+                artist=one_name, songs=songs_sorted, playlist_name=playlist_name
+            )
+        else:
+            print(f"No songs found for {one_name}")
+            print(
+                "    There are either no published setlists or a typo in the artist name."
+            )
 
 
 if __name__ == "__main__":
