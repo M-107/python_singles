@@ -39,6 +39,8 @@
 
 [**ab2data**](random/ab2data.py) - Tool for transforming bank statements from AirBank to usable data formats (CSV, JSON, JSONL), as the bank only supplies them as PDFs to regular account holders.
 
+[**abdata_viz**](random/abdata_viz.py) - Uses the jsonl output of ab2data to get some basic information and graphs the daily changes and total account balance. Can be extended.
+
 [**clickhash**](random/clickhash.py) - Simple CLI tool that hashes and unhashes strings or files.
 
 [**sudoku_solver**](random/sudoku_solver.py) - Bruteforce Sudoku solver. Initial state can be entered manually. The solution progress is visualised, which can be turned off for increased performance.
