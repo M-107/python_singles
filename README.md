@@ -25,7 +25,7 @@
 
 [**json2spotify**](spotify/json2spotify.py) - Takes the JSON created by previous script and creates Spotify playlists out of it.
 
-[**artist2playlist**](spotify/artist2playlist.py) - Combination of the previous two scripts. Asks for a name and generates a playlist with most played songs for a single artist.
+[**artist2playlist**](spotify/artist2playlist.py) - Combination of the previous two scripts. Asks for a name and generates a playlist with the most played songs at live shows from an artist (or multiple artists at once).
 
 
 ## Reddit Stuff
