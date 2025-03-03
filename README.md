@@ -43,6 +43,8 @@
 
 [**clickhash**](random/clickhash.py) - Simple CLI tool that hashes and unhashes strings or files.
 
+[**gpu_usage**](random/gpu_usage.py) - Displays basic live statistics of Nvidia GPUs.
+
 [**sudoku_solver**](random/sudoku_solver.py) - Bruteforce Sudoku solver. Initial state can be entered manually. The solution progress is visualised, which can be turned off for increased performance.
 
 [**key_distance**](random/key_distance.py) - Measures how "long" and "pointy" words are when typed on a keyboard with set dimensions.
@@ -56,5 +58,7 @@
 [**playfair_cypher**](random/playfair_cipher.py) - Implementation for encoding and decoding text using the Playfair cipher.
 
 [**sreality_scraper**](random/sreality_scraper.py) - Scrapes the Sreality website for house prices and saves the output to a CSV file.
+
+[**steam_get_user_games**](random/steam_get_user_games.py) - Basic testing of the Steam API. Dumps info about owned games to a JSON file.
 
 [**vscht_book_downloader**](random/vscht_book_downloader.py) - Tool for downloading books in PDF form from the VSCHT website, which only serves one page at a time.
