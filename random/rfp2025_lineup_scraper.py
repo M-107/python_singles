@@ -77,22 +77,20 @@ def parse_page(snapshot_path: Path) -> list[Show]:
     days = schedule_table.find_all("div", class_="timetable__day")
     for day in days:
         day_name = day.find("h2").text.strip()
-        stages = day.find_all("div", class_="timetable__stagetime")
-        for stage in stages:
+        day_stages = day.find_all("div", class_="timetable__stagetime")
+        for stage in day_stages:
             stage_name = stage["data-stage"]
-            events = stage.find_all("div", class_="timetable__entry")
-            for event in events:
-                name = event.find("span", class_="name").text.strip()
-                time = event.find("span", class_="time").text.strip()
+            stage_events = stage.find_all("div", class_="timetable__entry")
+            for event in stage_events:
+                event_name = event.find("span", class_="name").text.strip()
+                event_time = event.find("span", class_="time").text.strip()
                 event_type = event["data-type"]
-                start_time_str, end_time_str = time.split(" – ")
-                start_time = datetime.strptime(start_time_str, "%H:%M").time()
-                end_time = datetime.strptime(end_time_str, "%H:%M").time()
+                event_time_start, event_time_end = event_time.split(" – ")
                 show = Show(
-                    name=name,
+                    name=event_name,
                     day=DAY_MAP[day_name],
-                    start_time=start_time,
-                    end_time=end_time,
+                    start_time=datetime.strptime(event_time_start, "%H:%M").time(),
+                    end_time=datetime.strptime(event_time_end, "%H:%M").time(),
                     stage_name=STAGE_NAMES[stage_name],
                     type=EVENT_TYPES[event_type],
                 )
