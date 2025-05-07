@@ -77,7 +77,6 @@ def parse_page(snapshot_path: Path) -> list[Show]:
     days = schedule_table.find_all("div", class_="timetable__day")
     for day in days:
         day_name = day.find("h2").text.strip()
-        day_date = day_name
         stages = day.find_all("div", class_="timetable__stagetime")
         for stage in stages:
             stage_name = stage["data-stage"]
@@ -91,7 +90,7 @@ def parse_page(snapshot_path: Path) -> list[Show]:
                 end_time = datetime.strptime(end_time_str, "%H:%M").time()
                 show = Show(
                     name=name,
-                    day=DAY_MAP[day_date],
+                    day=DAY_MAP[day_name],
                     start_time=start_time,
                     end_time=end_time,
                     stage_name=STAGE_NAMES[stage_name],
