@@ -77,7 +77,7 @@ def parse_page(snapshot_path: Path) -> list[Show]:
     days = schedule_table.find_all("div", class_="timetable__day")
     for day in days:
         day_name = day.find("h2").text.strip()
-        day_date = DAY_MAP[day_name]
+        day_date = day_name
         stages = day.find_all("div", class_="timetable__stagetime")
         for stage in stages:
             stage_name = stage["data-stage"]
@@ -85,17 +85,17 @@ def parse_page(snapshot_path: Path) -> list[Show]:
             for event in events:
                 name = event.find("span", class_="name").text.strip()
                 time = event.find("span", class_="time").text.strip()
+                event_type = event["data-type"]
                 start_time_str, end_time_str = time.split(" – ")
                 start_time = datetime.strptime(start_time_str, "%H:%M").time()
                 end_time = datetime.strptime(end_time_str, "%H:%M").time()
-                type = EVENT_TYPES[event["data-type"]]
                 show = Show(
                     name=name,
-                    day=day_date,
+                    day=DAY_MAP[day_date],
                     start_time=start_time,
                     end_time=end_time,
                     stage_name=STAGE_NAMES[stage_name],
-                    type=type,
+                    type=EVENT_TYPES[event_type],
                 )
                 all_shows.append(show)
     return all_shows
