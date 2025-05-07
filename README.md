@@ -49,6 +49,8 @@
 
 [**key_distance**](random/key_distance.py) - Measures how "long" and "pointy" words are when typed on a keyboard with set dimensions.
 
+[**rfp2025_lineup_scraper**](random/rfp2025_lineup_scraper.py) - Scrapes the linup of the Rock for People 2025 festival and saves it to csv for further processing.
+
 [**pyxel_pong**](random/pyxel_pong.py) - Pong clone utilizing the Pyxel library.
 
 [**asyncio_test**](random/asyncio_test.py) - Test script for trying out async downloading.
