@@ -39,11 +39,11 @@ class Show:
     stage_name: str
     type: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} - {self.day} {self.start_time} - {self.end_time} ({self.stage_name}) [{self.type}]"
 
     @property
-    def duration(self):
+    def duration(self) -> int:
         return int(
             (
                 datetime.combine(self.day, self.end_time)
@@ -101,12 +101,12 @@ def parse_page(snapshot_path: Path) -> list[Show]:
     return all_shows
 
 
-def print_shows(all_shows: list[Show]):
+def print_shows(all_shows: list[Show]) -> None:
     for show in all_shows:
         print(show)
 
 
-def save_csv(all_shows: list[Show]):
+def save_csv(all_shows: list[Show]) -> None:
     with open("shows.csv", "w", encoding="utf-8") as file:
         file.write("name,day,start_time,end_time,duration,stage_name,type\n")
         for show in all_shows:
