@@ -16,3 +16,4 @@ dist/
 *.jinja
 *.pyxres
 *.html
+Vypis*
