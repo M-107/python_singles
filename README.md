@@ -27,6 +27,8 @@
 
 [**artist2playlist**](spotify/artist2playlist.py) - Combination of the previous two scripts. Asks for a name and generates a playlist with the most played songs at live shows from an artist (or multiple artists at once).
 
+[**artist2playlist_api**](spotify/artist2playlist_api.py) - Same functionality as artist2playlist, but uses the setlist.fm API instead of web scraping. More error handling and supports an alternative way to search for hard-to-find artists (ambiguous names). Very much vibecoded with Claude Sonnet and artist2playlist as the source material.
+
 
 ## Reddit Stuff
 
