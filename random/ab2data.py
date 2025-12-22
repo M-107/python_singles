@@ -25,26 +25,23 @@ def read_pdf(file: Path) -> list[str]:
 
 
 def cleanup_lines(lines: list[str]) -> list[str]:
-    lines = lines[18:-7]
+    lines = lines[21:-11]
     pattern_junk = r"Pokra"
     matches_junk = [
         index for index, string in enumerate(lines) if re.match(pattern_junk, string)
     ]
-    junk_lines = [number + i for number in matches_junk for i in range(8)]
+    junk_lines = [number + i for number in matches_junk for i in range(11)]
     clean_lines = [line for index, line in enumerate(lines) if index not in junk_lines]
-    pattern_transaction = r"^ \d{2}.\d{2}.\d{4}$"
-    matches_transactions = [
-        index
-        for index, string in enumerate(clean_lines)
-        if re.match(pattern_transaction, string)
-    ]
-    split_lines = [
-        clean_lines[matches_transactions[i] : matches_transactions[i + 1]]
-        for i in range(len(matches_transactions) - 1)
-    ]
-    split_lines.append(clean_lines[matches_transactions[-1] :])
-    split_lines = [[line.strip() for line in lines] for lines in split_lines]
-    split_strings = [" ".join(lines) for lines in split_lines]
+    non_empty_lines = [line for line in clean_lines if line.strip() != ""]
+    full_text = "\n".join(non_empty_lines)
+    pattern_transaction_block = re.compile(
+        r"(\d{2}\.\d{2}\.\d{4}\n"
+        r"\d{2}\.\d{2}\.\d{4}\n"
+        r"(?:(?!\d{2}\.\d{2}\.\d{4}\n\d{2}\.\d{2}\.\d{4}).)+)",
+        re.DOTALL,
+    )
+    matches = pattern_transaction_block.finditer(full_text)
+    split_strings = [m.group(0).strip().replace("\n", " ") for m in matches]
     print(f"Found {len(split_strings)} transaction details")
     return split_strings
 

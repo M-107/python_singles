@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timedelta
 from os import environ
 
 import click
@@ -21,7 +22,7 @@ def init_spotify() -> spotipy.Spotify:
     return spotify
 
 
-def get_artist_songs(artist: str) -> list[str]:
+def get_artist_songs(artist: str, max_age: int) -> list[str]:
     """
     Get songs for an artist using the setlist.fm API.
 
@@ -61,14 +62,16 @@ def get_artist_songs(artist: str) -> list[str]:
         artist_id = match.group(2)
         print(f"Using direct URL for {artist_name} (ID: {artist_id})")
 
-        return get_songs_by_artist_id(artist_name, artist_id, headers, base_url)
+        return get_songs_by_artist_id(
+            artist_name, artist_id, headers, base_url, max_age
+        )
     else:
         # Normal artist search
-        return get_songs_by_artist_search(artist, headers, base_url)
+        return get_songs_by_artist_search(artist, headers, base_url, max_age)
 
 
 def get_songs_by_artist_id(
-    artist_name: str, artist_id: str, headers: dict, base_url: str
+    artist_name: str, artist_id: str, headers: dict, base_url: str, max_age: int
 ) -> list[str]:
     """Get songs using a direct artist ID from setlist.fm URL."""
     songs = {}
@@ -91,8 +94,8 @@ def get_songs_by_artist_id(
 
             # Handle rate limiting
             if setlists_response.status_code == 429:
-                print("Rate limited - waiting 60 seconds before retrying...")
-                time.sleep(60)
+                print("Rate limited - waiting 5 seconds before retrying...")
+                time.sleep(5)
                 setlists_response = requests.get(
                     setlists_url, headers=headers, params=setlists_params, timeout=10
                 )
@@ -107,7 +110,12 @@ def get_songs_by_artist_id(
 
             print(f"Processing page {page} - {len(setlists)} setlists")
 
+            reached_too_old = False
             for setlist in setlists:
+                set_date = datetime.strptime(setlist["eventDate"], "%d-%m-%Y")
+                if set_date < datetime.now() - timedelta(days=max_age):
+                    reached_too_old = True
+                    continue
                 if "sets" in setlist:
                     position = 1
                     for set_data in setlist["sets"]["set"]:
@@ -123,7 +131,7 @@ def get_songs_by_artist_id(
 
             # Check if there are more pages
             total_pages = setlists_data.get("total", 0) // 20 + 1
-            if page >= total_pages:
+            if page >= total_pages or reached_too_old:
                 break
 
             page += 1
@@ -138,7 +146,9 @@ def get_songs_by_artist_id(
     return process_songs_data(songs, artist_name)
 
 
-def get_songs_by_artist_search(artist: str, headers: dict, base_url: str) -> list[str]:
+def get_songs_by_artist_search(
+    artist: str, headers: dict, base_url: str, max_age: int
+) -> list[str]:
     """Get songs by searching for the artist first."""
     # Search for the artist first
     print(f"Searching for artist: {artist}")
@@ -155,8 +165,8 @@ def get_songs_by_artist_search(artist: str, headers: dict, base_url: str) -> lis
 
         # Handle rate limiting
         if search_response.status_code == 429:
-            print("Rate limited on artist search - waiting 60 seconds...")
-            time.sleep(60)
+            print("Rate limited on artist search - waiting 5 seconds...")
+            time.sleep(5)
             search_response = requests.get(
                 search_url, headers=headers, params=search_params, timeout=10
             )
@@ -213,8 +223,8 @@ def get_songs_by_artist_search(artist: str, headers: dict, base_url: str) -> lis
 
             # Handle rate limiting specifically
             if setlists_response.status_code == 429:
-                print("Rate limited - waiting 60 seconds before retrying...")
-                time.sleep(60)
+                print("Rate limited - waiting 5 seconds before retrying...")
+                time.sleep(5)
                 setlists_response = requests.get(
                     setlists_url, headers=headers, params=setlists_params, timeout=10
                 )
@@ -229,7 +239,12 @@ def get_songs_by_artist_search(artist: str, headers: dict, base_url: str) -> lis
 
             print(f"Processing page {page} - {len(setlists)} setlists")
 
+            reached_too_old = False
             for setlist in setlists:
+                set_date = datetime.strptime(setlist["eventDate"], "%d-%m-%Y")
+                if set_date < datetime.now() - timedelta(days=max_age):
+                    reached_too_old = True
+                    continue
                 if "sets" in setlist:
                     position = 1
                     for set_data in setlist["sets"]["set"]:
@@ -247,7 +262,7 @@ def get_songs_by_artist_search(artist: str, headers: dict, base_url: str) -> lis
             total_pages = (
                 setlists_data.get("total", 0) // 20 + 1
             )  # API returns 20 per page
-            if page >= total_pages:
+            if page >= total_pages or reached_too_old:
                 break
 
             page += 1
@@ -277,7 +292,6 @@ def process_songs_data(songs: dict, artist_name: str) -> list[str]:
     # Sort by average position (most frequently played early in sets first)
     sorted_songs = dict(sorted(songs.items(), key=lambda x: x[1]))
 
-    print(f"Found {len(sorted_songs)} unique songs for {artist_name}")
     return list(sorted_songs.keys())
 
 
@@ -362,7 +376,13 @@ def create_playlist(artist: str, songs: list, playlist_name: str, market: str) -
 @click.option(
     "-m", "--market", default="CZ", help="Market for Spotify search. Default is CZ"
 )
-def main(name, playlist_format, market):
+@click.option(
+    "-ma",
+    "--max-age",
+    default=365,
+    help="Maximum age of setlists in days to consider. Default is 365 days.",
+)
+def main(name, playlist_format, market, max_age):
     """
     Create Spotify playlists with most played live songs for given artists.
 
@@ -406,10 +426,12 @@ def main(name, playlist_format, market):
         playlist_name = template.render(name=display_name)
         print(f"\n--- Processing {display_name} ---")
 
-        songs = get_artist_songs(artist=one_name)
+        songs = get_artist_songs(artist=one_name, max_age=max_age)
 
         if len(songs) > 0:
-            print(f"Found {len(songs)} songs played at live shows of {display_name}")
+            print(
+                f"Found {len(songs)} unique songs for {one_name} that were played less than {max_age} days ago"
+            )
             print("Creating playlist...")
 
             final_song_count = create_playlist(

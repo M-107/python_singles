@@ -17,3 +17,4 @@ dist/
 *.pyxres
 *.html
 Vypis*
+debug_*.txt
