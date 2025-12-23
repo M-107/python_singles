@@ -27,7 +27,6 @@ def get_artist_songs(artist: str, max_age: int) -> list[str]:
     if not api_key:
         print("Error: SETLISTFM_API_KEY environment variable not set")
         return []
-
     base_url = "https://api.setlist.fm/rest/1.0"
     headers = {
         "x-api-key": api_key,
@@ -37,114 +36,141 @@ def get_artist_songs(artist: str, max_age: int) -> list[str]:
     return get_songs_by_artist_search(artist, headers, base_url, max_age)
 
 
-def get_songs_by_artist_search(
-    artist: str, headers: dict, base_url: str, max_age: int
-) -> list[str]:
+def make_api_request(
+    url: str, headers: dict, params: dict, timeout: int = 10
+) -> dict | None:
+    time.sleep(0.6)
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=timeout)
+        if response.status_code == 429:
+            print("Rate limited - waiting 5 seconds before retrying...")
+            time.sleep(5)
+            response = requests.get(
+                url, headers=headers, params=params, timeout=timeout
+            )
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        print(f"Error making request to {url}: {e}")
+        return None
+
+
+def find_artist_data(
+    artist: str, headers: dict, base_url: str
+) -> tuple[str | None, str | None]:
     print(f"Searching for artist: {artist}")
     search_url = f"{base_url}/search/artists"
     search_params = {"artistName": artist, "p": 1}
-    try:
-        time.sleep(0.6)
-        search_response = requests.get(
-            search_url, headers=headers, params=search_params, timeout=10
-        )
-        if search_response.status_code == 429:
-            print("Rate limited on artist search - waiting 5 seconds...")
-            time.sleep(5)
-            search_response = requests.get(
-                search_url, headers=headers, params=search_params, timeout=10
+    search_data = make_api_request(search_url, headers, search_params)
+    if not search_data or not search_data.get("artist"):
+        print(f"No artist found for '{artist}'")
+        return None, None
+    for found_artist in search_data["artist"]:
+        if found_artist["name"].lower() == artist.lower():
+            print(
+                f"Found exact match: {found_artist['name']} (MBID: {found_artist['mbid']})"
             )
-        search_response.raise_for_status()
-        search_data = search_response.json()
-        if not search_data.get("artist") or len(search_data["artist"]) == 0:
-            print(f"No artist found for '{artist}'")
-            return []
-        artist_mbid = None
-        artist_name = None
-        for found_artist in search_data["artist"]:
-            if found_artist["name"].lower() == artist.lower():
-                artist_mbid = found_artist["mbid"]
-                artist_name = found_artist["name"]
-                break
-        if not artist_mbid:
-            artist_mbid = search_data["artist"][0]["mbid"]
-            artist_name = search_data["artist"][0]["name"]
-            print(f"Warning: Using closest match '{artist_name}' for search '{artist}'")
-        else:
-            print(f"Found exact match: {artist_name} (MBID: {artist_mbid})")
-    except requests.RequestException as e:
-        print(f"Error searching for artist {artist}: {e}")
-        return []
-    except KeyError as e:
-        print(f"Unexpected API response format when searching for {artist}: {e}")
-        return []
+            return found_artist["mbid"], found_artist["name"]
+    closest = search_data["artist"][0]
+    print(f"Warning: Using closest match '{closest['name']}' for search '{artist}'")
+    return closest["mbid"], closest["name"]
+
+
+def extract_songs_from_setlists(
+    setlists: list, max_age: int
+) -> tuple[dict[str, list[int]], bool]:
     songs = {}
+    cutoff_date = datetime.now() - timedelta(days=max_age)
+    found_old = False
+    for setlist in setlists:
+        try:
+            set_date = datetime.strptime(setlist["eventDate"], "%d-%m-%Y")
+            if set_date < cutoff_date:
+                found_old = True
+                break
+            if "sets" not in setlist:
+                continue
+            position = 1
+            for set_data in setlist["sets"]["set"]:
+                if "song" in set_data:
+                    for song in set_data["song"]:
+                        if "name" in song:
+                            song_name = song["name"]
+                            if song_name in songs:
+                                songs[song_name].append(position)
+                            else:
+                                songs[song_name] = [position]
+                            position += 1
+        except (KeyError, ValueError) as e:
+            continue
+    return songs, found_old
+
+
+def get_songs_by_artist_search(
+    artist: str, headers: dict, base_url: str, max_age: int
+) -> list[str]:
+    _, artist_name = find_artist_data(artist, headers, base_url)
+    if not artist_name:
+        return []
+    all_songs = {}
     page = 1
     max_pages = 5
+    print("Processing setlists...")
     while page <= max_pages:
         setlists_url = f"{base_url}/search/setlists"
         setlists_params = {"artistName": artist_name, "p": page}
-        try:
-            time.sleep(0.6)
-            setlists_response = requests.get(
-                setlists_url, headers=headers, params=setlists_params, timeout=10
-            )
-            if setlists_response.status_code == 429:
-                print("Rate limited - waiting 5 seconds before retrying...")
-                time.sleep(5)
-                setlists_response = requests.get(
-                    setlists_url, headers=headers, params=setlists_params, timeout=10
-                )
-            setlists_response.raise_for_status()
-            setlists_data = setlists_response.json()
-            setlists = setlists_data.get("setlist", [])
-            if not setlists:
-                print(f"No more setlists found (page {page})")
-                break
-            print(f"Processing page {page} - {len(setlists)} setlists")
-
-            reached_too_old = False
-            for setlist in setlists:
-                set_date = datetime.strptime(setlist["eventDate"], "%d-%m-%Y")
-                if set_date < datetime.now() - timedelta(days=max_age):
-                    reached_too_old = True
-                    continue
-                if "sets" in setlist:
-                    position = 1
-                    for set_data in setlist["sets"]["set"]:
-                        if "song" in set_data:
-                            for song in set_data["song"]:
-                                if "name" in song:
-                                    song_name = song["name"]
-                                    if song_name in songs:
-                                        songs[song_name].append(position)
-                                    else:
-                                        songs[song_name] = [position]
-                                    position += 1
-
-            total_pages = setlists_data.get("total", 0) // 20 + 1
-            if page >= total_pages or reached_too_old:
-                break
-            page += 1
-        except requests.RequestException as e:
-            print(f"Error fetching setlists for {artist} (page {page}): {e}")
+        setlists_data = make_api_request(setlists_url, headers, setlists_params)
+        if not setlists_data:
             break
-        except KeyError as e:
-            print(f"Unexpected API response format for setlists (page {page}): {e}")
+        setlists = setlists_data.get("setlist", [])
+        if not setlists:
             break
-    return process_songs_data(songs, artist)
+        page_songs, found_old = extract_songs_from_setlists(setlists, max_age)
+        for song_name, positions in page_songs.items():
+            if song_name in all_songs:
+                all_songs[song_name].extend(positions)
+            else:
+                all_songs[song_name] = positions
+        if found_old:
+            break
+        total_pages = setlists_data.get("total", 0) // 20 + 1
+        if page >= total_pages or page >= max_pages:
+            break
+        page += 1
+    return process_songs_data(all_songs, artist)
 
 
-def process_songs_data(songs: dict, artist_name: str) -> list[str]:
+def process_songs_data(songs: dict[str, list[int]], artist_name: str) -> list[str]:
     if not songs:
         print(f"No songs found in setlists for {artist_name}")
         return []
-    for song in songs:
-        all_positions = songs[song]
-        average_position = sum(all_positions) / len(all_positions)
-        songs[song] = average_position
-    sorted_songs = dict(sorted(songs.items(), key=lambda x: x[1]))
-    return list(sorted_songs.keys())
+    song_averages = {
+        song: sum(positions) / len(positions) for song, positions in songs.items()
+    }
+    return [song for song, _ in sorted(song_averages.items(), key=lambda x: x[1])]
+
+
+def find_spotify_track(
+    spotify: spotipy.Spotify, artist: str, song: str, market: str
+) -> str | None:
+    try:
+        search_query = f"{artist} {song}"
+        search_result = spotify.search(q=search_query, type="track", market=market)
+        if not search_result or "tracks" not in search_result:
+            return None
+        items = search_result["tracks"]["items"]
+        if not items:
+            return None
+        song_uri = items[0]["uri"]
+        track_info = spotify.track(track_id=song_uri)
+        if track_info and "artists" in track_info:
+            artist_names = [a["name"].lower() for a in track_info["artists"]]
+            if artist.lower() in artist_names:
+                return song_uri
+        return None
+    except Exception as e:
+        print(f"Error searching for song '{song}' by {artist}: {e}")
+        return None
 
 
 def create_playlist(artist: str, songs: list, playlist_name: str, market: str) -> int:
@@ -152,50 +178,28 @@ def create_playlist(artist: str, songs: list, playlist_name: str, market: str) -
     spotify = init_spotify()
     song_uris = []
     for song in songs:
-        try:
-            search_query = f"{artist} {song}"
-            search_result = spotify.search(
-                q=search_query,
-                type="track",
-                market=market,
-            )
-            if not search_result or "tracks" not in search_result:
-                continue
-            search_result_items = search_result["tracks"]["items"]
-            if not search_result_items:
-                continue
-            song_uri = search_result_items[0]["uri"]
-            if song_uri not in song_uris:
-                track_info = spotify.track(track_id=song_uri)
-                if (
-                    track_info
-                    and "artists" in track_info
-                    and artist.lower()
-                    in [
-                        str(artist_info["name"]).lower()
-                        for artist_info in track_info["artists"]
-                    ]
-                ):
-                    song_uris.append(song_uri)
-        except Exception as e:
-            print(f"Error searching for song '{song}' by {artist}: {e}")
-            continue
+        uri = find_spotify_track(spotify, artist, song, market)
+        if uri and uri not in song_uris:
+            song_uris.append(uri)
+    if not song_uris:
+        print(f"No matching tracks found on Spotify")
+        return 0
     try:
         playlist = spotify.user_playlist_create(
-            user=user_id,
-            name=playlist_name,
-            public=True,
+            user=user_id, name=playlist_name, public=True
         )
-        if playlist and "uri" in playlist:
-            for i in range(0, len(song_uris), 100):
-                batch = song_uris[i : i + 100]
-                spotify.user_playlist_add_tracks(
-                    user=user_id, playlist_id=playlist["uri"], tracks=batch
-                )
+        if not playlist or "uri" not in playlist:
+            print(f"Error creating playlist '{playlist_name}'")
+            return 0
+        for i in range(0, len(song_uris), 100):
+            batch = song_uris[i : i + 100]
+            spotify.user_playlist_add_tracks(
+                user=user_id, playlist_id=playlist["uri"], tracks=batch
+            )
+        return len(song_uris)
     except Exception as e:
         print(f"Error creating playlist '{playlist_name}': {e}")
         return 0
-    return len(song_uris)
 
 
 @click.command()
@@ -221,15 +225,6 @@ def create_playlist(artist: str, songs: list, playlist_name: str, market: str) -
     help="Maximum age of setlists in days to consider. Default is 365 days.",
 )
 def main(name, playlist_format, market, max_age):
-    """
-    Create Spotify playlists with most played live songs for given artists.
-
-    Requires environment variables:
-    - SETLISTFM_API_KEY: Your setlist.fm API key
-    - SPOTIFY_CLIENT_ID: Your Spotify app client ID
-    - SPOTIFY_CLIENT_SECRET: Your Spotify app client secret
-    - SPOTIFY_USER_ID: Your Spotify username
-    """
     if not name:
         print("No artist name provided, please use -n to provide one or more names")
         print("You can also use --help to see the options")
