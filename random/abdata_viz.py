@@ -126,24 +126,29 @@ def daily_changes(days: list[Day]) -> list[float]:
     return daily_changes
 
 
-def manual_cleanup_helpers(transaction_list: list[Transaction]) -> None:
+def manual_cleanup_helpers(transaction_list: list[Transaction], debug_all=False) -> None:
     WHITE = "\033[0m"
     RED = "\033[91m"
     GREEN = "\033[92m"
     print("---")
-    for transaction in transaction_list:
+    for n, transaction in enumerate(transaction_list, 1):
         if transaction.ammount > 1000 or transaction.ammount < -1000:
             print(
-                f"{RED if transaction.ammount < 0 else GREEN}{transaction.ammount:>15,.2f}{WHITE} [{transaction.date_paid.date()}] {transaction.details}"
+                f"{n:>4} {RED if transaction.ammount < 0 else GREEN}{transaction.ammount:>15,.2f}{WHITE} [{transaction.date_paid.date()}] {transaction.details}"
             )
     print("---")
-    for transaction in transaction_list:
-        if transaction.details is not None:
-            if transaction.details[-1] == " " or transaction.details[-1].isdigit():
+    for n, transaction in enumerate(transaction_list, 1):
+        if transaction.details is not None and(transaction.details[-1] == " " or transaction.details[-1].isdigit()):
                 print(
-                    f"{RED if transaction.ammount < 0 else GREEN}{transaction.ammount:>15,.2f}{WHITE} [{transaction.date_paid.date()}] [{transaction.payment_type}] {transaction.details}"
+                    f"{n:>4} {RED if transaction.ammount < 0 else GREEN}{transaction.ammount:>15,.2f}{WHITE} [{transaction.date_paid.date()}] [{transaction.payment_type}] {transaction.details}"
                 )
     print("---")
+    if debug_all:
+        for n, transaction in enumerate(transaction_list, 1):
+            print(
+                f"{n:>4} {RED if transaction.ammount < 0 else GREEN}{transaction.ammount:>15,.2f}{WHITE} [{transaction.date_paid.date()}] [{transaction.payment_type}] {transaction.details}"
+            )
+        print("---")
     bad_transactions_out = [
         transaction
         for transaction in transaction_list
@@ -205,7 +210,9 @@ def graph_all(days: list[Day]) -> None:
 
 @click.command()
 @click.argument("input_file", type=click.Path(exists=True))
-def main(input_file):
+@click.option("--debug", is_flag=True, help="Print a subset of transactions for easier manual cleanup.")
+@click.option("--debug-all", is_flag=True, help="Print all transactions, may cut off.")
+def main(input_file, debug, debug_all):
     input_file = Path(input_file).resolve()
     print(f"Analyzing file {input_file.stem}")
     transaction_list = file2transactions(file=input_file)
@@ -227,6 +234,8 @@ def main(input_file):
     net = total_income + total_expenses
     print(f"Net income: {GREEN if net > 0 else RED}{net:,.2f}{WHITE}".replace(",", " "))
     graph_all(days=days)
+    if debug:
+        manual_cleanup_helpers(transaction_list=transaction_list, debug_all=debug_all)
 
 
 if __name__ == "__main__":
