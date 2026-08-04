@@ -3,29 +3,7 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-artists_to_find = [
-    "Bring Me The horizon",
-    "The Offspring",
-    "Avril Lavigne",
-    "Corey Taylor",
-    "Pendulum",
-    "Parkway Drive",
-    "Against The Current",
-    "Alpha Wolf",
-    "Body Count",
-    "Crystal Lake",
-    "Dead Pony",
-    "La Dispute",
-    "Dogstar",
-    "The Ecstasy Of Saint Theresa",
-    "Enter Shikari",
-    "Hanabie",
-    "Hot Milk",
-    "Missio",
-    "Neck Deep",
-    "Shadow Of Intent",
-    "Sum 41",
-]
+artists_to_find = ["blink-182"]
 
 
 def get_artist_songs(artists_to_find: list):
