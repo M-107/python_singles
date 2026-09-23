@@ -24,21 +24,7 @@ def init_spotify() -> spotipy.Spotify:
     return spotify
 
 
-def get_artist_songs(artist: str, max_age: int) -> list[str]:
-    api_key = environ.get("SETLISTFM_API_KEY")
-    if not api_key:
-        print("Error: SETLISTFM_API_KEY environment variable not set")
-        return []
-    base_url = "https://api.setlist.fm/rest/1.0"
-    headers = {
-        "x-api-key": api_key,
-        "Accept": "application/json",
-        "User-Agent": "artist2playlist/1.0 (https://github.com/M-107/python_singles)",
-    }
-    return get_songs_by_artist_search(artist, headers, base_url, max_age)
-
-
-def make_setlistfm_session() -> requests.Session:
+def make_setlistfm_session(api_key: str) -> requests.Session:
     retry = Retry(
         total=5,
         backoff_factor=1,
@@ -48,16 +34,25 @@ def make_setlistfm_session() -> requests.Session:
     )
     session = requests.Session()
     session.mount("https://", HTTPAdapter(max_retries=retry))
+    session.headers.update(
+        {
+            "x-api-key": api_key,
+            "Accept": "application/json",
+            "User-Agent": "artist2playlist/1.0 (https://github.com/M-107/python_singles)",
+        }
+    )
     return session
 
 
-SETLISTFM_SESSION = make_setlistfm_session()
+def get_artist_songs(session: requests.Session, artist: str, max_age: int) -> list[str]:
+    base_url = "https://api.setlist.fm/rest/1.0"
+    return get_songs_by_artist_search(session, artist, base_url, max_age)
 
 
-def make_api_request(url: str, headers: dict, params: dict, timeout: int = 10) -> dict | None:
+def make_api_request(session: requests.Session, url: str, params: dict, timeout: int = 10) -> dict | None:
     time.sleep(0.6)
     try:
-        response = SETLISTFM_SESSION.get(url, headers=headers, params=params, timeout=timeout)
+        response = session.get(url, params=params, timeout=timeout)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -65,11 +60,11 @@ def make_api_request(url: str, headers: dict, params: dict, timeout: int = 10) -
         return None
 
 
-def find_artist_data(artist: str, headers: dict, base_url: str) -> tuple[str | None, str | None]:
+def find_artist_data(session: requests.Session, artist: str, base_url: str) -> tuple[str | None, str | None]:
     print(f"Searching for artist: {artist}")
     search_url = f"{base_url}/search/artists"
     search_params = {"artistName": artist, "p": 1}
-    search_data = make_api_request(search_url, headers, search_params)
+    search_data = make_api_request(session, search_url, search_params)
     if not search_data or not search_data.get("artist"):
         print(f"No artist found for '{artist}'")
         return None, None
@@ -110,8 +105,8 @@ def extract_songs_from_setlists(setlists: list, max_age: int) -> tuple[dict[str,
     return songs, found_old
 
 
-def get_songs_by_artist_search(artist: str, headers: dict, base_url: str, max_age: int) -> list[str]:
-    _, artist_name = find_artist_data(artist, headers, base_url)
+def get_songs_by_artist_search(session: requests.Session, artist: str, base_url: str, max_age: int) -> list[str]:
+    _, artist_name = find_artist_data(session, artist, base_url)
     if not artist_name:
         return []
     all_songs = {}
@@ -121,7 +116,7 @@ def get_songs_by_artist_search(artist: str, headers: dict, base_url: str, max_ag
     while page <= max_pages:
         setlists_url = f"{base_url}/search/setlists"
         setlists_params = {"artistName": artist_name, "p": page}
-        setlists_data = make_api_request(setlists_url, headers, setlists_params)
+        setlists_data = make_api_request(session, setlists_url, setlists_params)
         if not setlists_data:
             break
         setlists = setlists_data.get("setlist", [])
@@ -231,12 +226,13 @@ def main(name, playlist_format, market, max_age):
     if missing_vars:
         print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
         return
+    session = make_setlistfm_session(environ["SETLISTFM_API_KEY"])
     environment = jinja2.Environment()
     template = environment.from_string(playlist_format)
     for one_name in name:
         playlist_name = template.render(name=one_name)
         print(f"\n--- Processing {one_name} ---")
-        songs = get_artist_songs(artist=one_name, max_age=max_age)
+        songs = get_artist_songs(session=session, artist=one_name, max_age=max_age)
         if len(songs) > 0:
             print(f"Found {len(songs)} unique songs for {one_name} that were played less than {max_age} days ago")
             print("Creating playlist...")
