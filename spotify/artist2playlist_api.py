@@ -6,7 +6,9 @@ import click
 import jinja2
 import requests
 import spotipy
+from requests.adapters import HTTPAdapter
 from spotipy.oauth2 import SpotifyOAuth
+from urllib3.util import Retry
 
 
 def init_spotify() -> spotipy.Spotify:
@@ -15,7 +17,7 @@ def init_spotify() -> spotipy.Spotify:
             scope="playlist-modify-public",
             client_id=environ["SPOTIFY_CLIENT_ID"],
             client_secret=environ["SPOTIFY_CLIENT_SECRET"],
-            redirect_uri="http://localhost",
+            redirect_uri="http://127.0.0.1:8888/callback",
             username=environ["SPOTIFY_USER_ID"],
         )
     )
@@ -36,18 +38,26 @@ def get_artist_songs(artist: str, max_age: int) -> list[str]:
     return get_songs_by_artist_search(artist, headers, base_url, max_age)
 
 
-def make_api_request(
-    url: str, headers: dict, params: dict, timeout: int = 10
-) -> dict | None:
+def make_setlistfm_session() -> requests.Session:
+    retry = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+        respect_retry_after_header=True,
+    )
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    return session
+
+
+SETLISTFM_SESSION = make_setlistfm_session()
+
+
+def make_api_request(url: str, headers: dict, params: dict, timeout: int = 10) -> dict | None:
     time.sleep(0.6)
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=timeout)
-        if response.status_code == 429:
-            print("Rate limited - waiting 5 seconds before retrying...")
-            time.sleep(5)
-            response = requests.get(
-                url, headers=headers, params=params, timeout=timeout
-            )
+        response = SETLISTFM_SESSION.get(url, headers=headers, params=params, timeout=timeout)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -55,9 +65,7 @@ def make_api_request(
         return None
 
 
-def find_artist_data(
-    artist: str, headers: dict, base_url: str
-) -> tuple[str | None, str | None]:
+def find_artist_data(artist: str, headers: dict, base_url: str) -> tuple[str | None, str | None]:
     print(f"Searching for artist: {artist}")
     search_url = f"{base_url}/search/artists"
     search_params = {"artistName": artist, "p": 1}
@@ -67,18 +75,14 @@ def find_artist_data(
         return None, None
     for found_artist in search_data["artist"]:
         if found_artist["name"].lower() == artist.lower():
-            print(
-                f"Found exact match: {found_artist['name']} (MBID: {found_artist['mbid']})"
-            )
+            print(f"Found exact match: {found_artist['name']} (MBID: {found_artist['mbid']})")
             return found_artist["mbid"], found_artist["name"]
     closest = search_data["artist"][0]
     print(f"Warning: Using closest match '{closest['name']}' for search '{artist}'")
     return closest["mbid"], closest["name"]
 
 
-def extract_songs_from_setlists(
-    setlists: list, max_age: int
-) -> tuple[dict[str, list[int]], bool]:
+def extract_songs_from_setlists(setlists: list, max_age: int) -> tuple[dict[str, list[int]], bool]:
     songs = {}
     cutoff_date = datetime.now() - timedelta(days=max_age)
     found_old = False
@@ -101,14 +105,12 @@ def extract_songs_from_setlists(
                             else:
                                 songs[song_name] = [position]
                             position += 1
-        except (KeyError, ValueError) as e:
+        except (KeyError, ValueError):
             continue
     return songs, found_old
 
 
-def get_songs_by_artist_search(
-    artist: str, headers: dict, base_url: str, max_age: int
-) -> list[str]:
+def get_songs_by_artist_search(artist: str, headers: dict, base_url: str, max_age: int) -> list[str]:
     _, artist_name = find_artist_data(artist, headers, base_url)
     if not artist_name:
         return []
@@ -144,15 +146,11 @@ def process_songs_data(songs: dict[str, list[int]], artist_name: str) -> list[st
     if not songs:
         print(f"No songs found in setlists for {artist_name}")
         return []
-    song_averages = {
-        song: sum(positions) / len(positions) for song, positions in songs.items()
-    }
+    song_averages = {song: sum(positions) / len(positions) for song, positions in songs.items()}
     return [song for song, _ in sorted(song_averages.items(), key=lambda x: x[1])]
 
 
-def find_spotify_track(
-    spotify: spotipy.Spotify, artist: str, song: str, market: str
-) -> str | None:
+def find_spotify_track(spotify: spotipy.Spotify, artist: str, song: str, market: str) -> str | None:
     try:
         search_query = f"{artist} {song}"
         search_result = spotify.search(q=search_query, type="track", market=market)
@@ -182,20 +180,16 @@ def create_playlist(artist: str, songs: list, playlist_name: str, market: str) -
         if uri and uri not in song_uris:
             song_uris.append(uri)
     if not song_uris:
-        print(f"No matching tracks found on Spotify")
+        print("No matching tracks found on Spotify")
         return 0
     try:
-        playlist = spotify.user_playlist_create(
-            user=user_id, name=playlist_name, public=True
-        )
+        playlist = spotify.user_playlist_create(user=user_id, name=playlist_name, public=True)
         if not playlist or "uri" not in playlist:
             print(f"Error creating playlist '{playlist_name}'")
             return 0
         for i in range(0, len(song_uris), 100):
             batch = song_uris[i : i + 100]
-            spotify.user_playlist_add_tracks(
-                user=user_id, playlist_id=playlist["uri"], tracks=batch
-            )
+            spotify.user_playlist_add_tracks(user=user_id, playlist_id=playlist["uri"], tracks=batch)
         return len(song_uris)
     except Exception as e:
         print(f"Error creating playlist '{playlist_name}': {e}")
@@ -215,9 +209,7 @@ def create_playlist(artist: str, songs: list, playlist_name: str, market: str) -
     default="{{name}} - Most Played Live",
     help="Playlist name format. Use {{name}} to use the entered artist name. Default is: {{name}} - Most Played Live",
 )
-@click.option(
-    "-m", "--market", default="CZ", help="Market for Spotify search. Default is CZ"
-)
+@click.option("-m", "--market", default="CZ", help="Market for Spotify search. Default is CZ")
 @click.option(
     "-ma",
     "--max-age",
@@ -237,9 +229,7 @@ def main(name, playlist_format, market, max_age):
     ]
     missing_vars = [var for var in required_vars if not environ.get(var)]
     if missing_vars:
-        print(
-            f"Error: Missing required environment variables: {', '.join(missing_vars)}"
-        )
+        print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
         return
     environment = jinja2.Environment()
     template = environment.from_string(playlist_format)
@@ -248,9 +238,7 @@ def main(name, playlist_format, market, max_age):
         print(f"\n--- Processing {one_name} ---")
         songs = get_artist_songs(artist=one_name, max_age=max_age)
         if len(songs) > 0:
-            print(
-                f"Found {len(songs)} unique songs for {one_name} that were played less than {max_age} days ago"
-            )
+            print(f"Found {len(songs)} unique songs for {one_name} that were played less than {max_age} days ago")
             print("Creating playlist...")
             final_song_count = create_playlist(
                 artist=one_name,
