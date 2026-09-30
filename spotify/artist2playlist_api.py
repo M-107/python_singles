@@ -145,9 +145,29 @@ def process_songs_data(songs: dict[str, list[int]], artist_name: str) -> list[st
     return [song for song, _ in sorted(song_averages.items(), key=lambda x: x[1])]
 
 
+PUNCTUATION_MAP = str.maketrans(
+    {
+        "‐": "-",
+        "‑": "-",
+        "‒": "-",
+        "–": "-",
+        "—": "-",
+        "−": "-",
+        "‘": "'",
+        "’": "'",
+        "“": '"',
+        "”": '"',
+    }
+)
+
+
+def normalize_name(name: str) -> str:
+    return name.translate(PUNCTUATION_MAP).lower()
+
+
 def find_spotify_track(spotify: spotipy.Spotify, artist: str, song: str, market: str) -> str | None:
     try:
-        search_query = f"{artist} {song}"
+        search_query = f"{artist} {song}".translate(PUNCTUATION_MAP)
         search_result = spotify.search(q=search_query, type="track", market=market)
         if not search_result or "tracks" not in search_result:
             return None
@@ -157,8 +177,8 @@ def find_spotify_track(spotify: spotipy.Spotify, artist: str, song: str, market:
         song_uri = items[0]["uri"]
         track_info = spotify.track(track_id=song_uri)
         if track_info and "artists" in track_info:
-            artist_names = [a["name"].lower() for a in track_info["artists"]]
-            if artist.lower() in artist_names:
+            artist_names = [normalize_name(a["name"]) for a in track_info["artists"]]
+            if normalize_name(artist) in artist_names:
                 return song_uri
         return None
     except Exception as e:
